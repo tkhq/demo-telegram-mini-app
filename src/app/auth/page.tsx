@@ -1,6 +1,6 @@
 'use client'
 
-import { CardContent, CardHeader, CardTitle } from "@/components/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import  Input from "@/components/input"
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -61,14 +61,14 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+    <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-background">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">TurntCoin 🔑</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">TurntCoin 🔑</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <form>
+            <form className="space-y-2">
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -101,7 +101,7 @@ export default function Auth() {
               </button>
           </div>
         </CardContent>
-      </div>
+      </Card>
     </div>
   )
 }
