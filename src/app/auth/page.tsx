@@ -1,28 +1,63 @@
 'use client'
 
-import { useState } from 'react'
 import { CardContent, CardHeader, CardTitle } from "@/components/card"
 import  Input from "@/components/input"
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Email } from '@/types/types';
+import axios from "axios";
+import { generateP256KeyPair } from "@turnkey/crypto";
 
 type EmailAuthData = {
   email: Email
+}
+
+type OAuthData = {
+  oidcToken: string;
+  provider: string;
 }
 
 export default function Auth() {
   const router = useRouter();
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
+  const { register: oauthFormRegister, handleSubmit: oauthFormSubmit } =
+    useForm<OAuthData>();
 
   async function handleEmailLogin (data: EmailAuthData) {
-    router.push("/play")
+    const keyPair = generateP256KeyPair();
+
+    try {
+      const response = await axios.post("/api/auth", {
+        type: "email",
+        email: data.email,
+        targetPublicKey: keyPair.publicKeyUncompressed,
+      });
+
+      // ToDo: store private key in localstorage
+      // eventually can maybe store in tgram cloud storage :eyes:
+
+      if (response.status == 200) {
+        router.push("/email-auth")
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-  const handleOAuthLogin = (provider: string) => {
-    // Handle OAuth login logic here
-    console.log('Logging in with', provider)
+  async function handleOAuthLogin (data: OAuthData) {
+    const keyPair = generateP256KeyPair();
+
+    try {
+      const response = await axios.post("/api/auth", {
+        type: "oauth",
+        oidcToken: data.oidcToken,
+        provider: data.provider,
+        targetPublicKey: keyPair.publicKeyUncompressed,
+      });
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -55,13 +90,13 @@ export default function Auth() {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => handleOAuthLogin('Google')} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
                 Google
               </button>
-              <button onClick={() => handleOAuthLogin('Apple')} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
                 Apple
               </button>
-              <button onClick={() => handleOAuthLogin('Facebook')} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
                 Facebook
               </button>
           </div>
