@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
@@ -27,8 +27,8 @@ dependencies:
     specifier: ^1.0.1
     version: 1.0.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0)(@types/react@18.3.12)(react@18.3.1)
   '@turnkey/telegram-cloud-storage-stamper':
-    specifier: https://pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper
-    version: '@pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper'
+    specifier: https://pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper/
+    version: '@pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper/'
   axios:
     specifier: ^1.7.7
     version: 1.7.7
@@ -6034,8 +6034,8 @@ packages:
     engines: {node: '>=18.0.0'}
     dev: false
 
-  '@pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper':
-    resolution: {tarball: https://pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper}
+  '@pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper/':
+    resolution: {tarball: https://pkg.csb.dev/tkhq/sdk/commit/fd84c318/@turnkey/telegram-cloud-storage-stamper/}
     name: '@turnkey/telegram-cloud-storage-stamper'
     version: 0.1.0
     engines: {node: '>=18.0.0'}
