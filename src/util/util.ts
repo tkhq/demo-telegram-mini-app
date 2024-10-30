@@ -1,3 +1,6 @@
+import { getPublicKey } from "@turnkey/crypto";
+import { uint8ArrayFromHexString, uint8ArrayToHexString } from "@turnkey/encoding";
+
 export const TURNKEY_EMBEDDED_KEY = "TURNKEY_EMBDEDDED_KEY";
 export const MILLIS_15_MINUTES = 900000;
 export const TURNTCOIN_WALLET_NAME = "TurntCoin Wallet"
@@ -31,3 +34,9 @@ export function getLocalStorageItemWithExipry(key: string) {
 
     return item.value;
 }
+
+export function getPublicKeyFromPrivateKeyHex(privateKey: string) {
+  return uint8ArrayToHexString(
+    getPublicKey(uint8ArrayFromHexString(privateKey), true)
+  );
+};

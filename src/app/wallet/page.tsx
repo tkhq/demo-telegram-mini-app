@@ -3,28 +3,51 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import Input from "@/components/input";
 import { ArrowLeft } from 'lucide-react'
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
-// import { TurnkeySigner } from "@turnkey/solana";
+import { TurnkeyBrowserClient } from "@turnkey/sdk-browser"
+import { TurnkeySigner } from "@turnkey/solana";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import axios from "axios";
-import { connect, balance } from "@/web3/web3"
+import { connect, balance, transfer, broadcast } from "@/web3/web3"
+import { useForm } from "react-hook-form";
+import TelegramCloudStorageStamper, { TTelegramCloudStorageStamperConfig } from "@turnkey/telegram-cloud-storage-stamper";
+
+type SendSolData = {
+  amount: number;
+  recipient: string;
+}
 
 export default function Wallet() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organizationId');
-  const solConnection = connect()
+  const solConnection = connect();
   const [solBalance, setSolBalance] = useState(0);
   const [solAddress, setSolAddress] = useState("");
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
-  const [sendAmount, setSendAmount] = useState("");
-  const [recipientAddress, setRecipientAddress] = useState("");
-  const [turntCoinBalance, setTurnCoinBalance] = useState(0)
+  const [turntCoinBalance, setTurnCoinBalance] = useState(0);
+  const [signer, setSigner] = useState<TurnkeySigner | null>(null);
+
+  const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
+    useForm<SendSolData>();
 
   useEffect(() => {
-    async function getAddressAndBalance() {
+    async function init() {
       try {
+        // This uses credentials previously stored in Telegram Cloud Storage
+        const telegramStamper = await TelegramCloudStorageStamper.create();
+        const client = new TurnkeyBrowserClient({
+          stamper: telegramStamper,
+          organizationId: organizationId!,
+          apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
+        });
+        const turnkeySigner = new TurnkeySigner({
+          organizationId: organizationId!,
+          client
+        })
+        setSigner(turnkeySigner)
+
         const getAddressResponse = await axios.get("/api/getAddress", { 
           params: {
             organizationId: organizationId
@@ -33,31 +56,48 @@ export default function Wallet() {
 
         if(!getAddressResponse.data.address) {
           setDisplaySolAddress("Failed Retrieving TurntCoin Address")
-          return
+          return;
         }
 
-        setSolAddress(getAddressResponse.data.address)
-        setDisplaySolAddress(truncateAddress(getAddressResponse.data.address, 16))
+        setSolAddress(getAddressResponse.data.address);
+        setDisplaySolAddress(truncateAddress(getAddressResponse.data.address, 16));
 
-        const solBal = await balance(solConnection, getAddressResponse.data.address)
-        setSolBalance(solBal / LAMPORTS_PER_SOL)
+        const solBal = await balance(solConnection, getAddressResponse.data.address);
+        setSolBalance(solBal / LAMPORTS_PER_SOL);
       } catch (e) {
-        setDisplaySolAddress("Failed Retrieving TurntCoin Address")
+        setDisplaySolAddress("Failed Retrieving TurntCoin Address");
       }
     }
 
-    getAddressAndBalance()
+    init();
   }, [])
 
   function handleBack() {
     const queryParams = new URLSearchParams({
       organizationId: organizationId!,
     }).toString();
-    router.push(`/play?${queryParams}`)
+    router.push(`/play?${queryParams}`);
   }
 
-  function handleSend() {
-    alert("Sent!")
+  async function handleSend(data: SendSolData) {
+    if (!data.amount || !data.recipient) {
+      // some failure
+    }
+
+    const amount = data.amount * LAMPORTS_PER_SOL;
+
+    if (amount >= solBalance * LAMPORTS_PER_SOL) {
+      // some failure
+      return;
+    }
+
+    const transaction = await transfer(solConnection, amount, solAddress, data.recipient);
+
+    await signer!.addSignature(transaction, solAddress);
+    // broadcast
+    const transactionHash = await broadcast(solConnection, transaction);
+
+    // put transaction hash somewhere!
   }
 
   function handleRedeem() {
@@ -66,7 +106,7 @@ export default function Wallet() {
 
   function truncateAddress(address: string, maxLength: number) {
     if (address.length <= maxLength) {
-      return address
+      return address;
     }
 
     const halfLength = Math.floor((maxLength - 3) / 2);
@@ -148,17 +188,15 @@ export default function Wallet() {
             <Input
               type="text"
               placeholder="Recipient Address"
-              value={recipientAddress}
-              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setRecipientAddress(e.target.value)}
+              {...sendSolFormRegister('recipient')}
             />
             <Input
               type="number"
               placeholder="Amount"
-              value={sendAmount}
-              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setSendAmount(e.target.value)}
+              {...sendSolFormRegister('amount')}
               step=".1"
             />
-            <button onClick={handleSend} className="font-semibold px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
+            <button onClick={sendSolFormSubmit(handleSend)} className="font-semibold px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
           </div>
         </CardContent>
       </Card>

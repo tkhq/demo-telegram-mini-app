@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import Input from "@/components/input"
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation"
-import { getLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
+import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { decryptCredentialBundle } from "@turnkey/crypto";
-// import { TelegramStamper } from "@turnkey/telegram-cloud-storage-stamper";
+import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 
 type EmailAuthCodeData = {
   authCode: string;
@@ -19,7 +19,7 @@ export default function EmailAuth() {
   const { register: emailAuthCodeFormRegister, handleSubmit: emailAuthCodeFormSubmit } =
     useForm<EmailAuthCodeData>();
 
-  const handleEmailAuth = (data: EmailAuthCodeData) => {
+  const handleEmailAuth = async (data: EmailAuthCodeData) => {
     // Handle authentication code verification logic here
     if (!data.authCode) {
       // some failure here
@@ -41,7 +41,11 @@ export default function EmailAuth() {
       // some failure here
     }
 
-    // ToDo: create a new telegram cloud storage stamper here
+    // This stores the api credentials obtained from email auth into telegram cloud storage and those credentials can be used in other places in your application
+    await TelegramCloudStorageStamper.create({
+      apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
+      apiPrivateKey: decryptedData!,
+    });
     
     router.push(`/play?${searchParams}`)
   }
