@@ -23,8 +23,6 @@ export async function transfer(connection: Connection, amount: number, sender: s
 
   const blockhash = await recentBlockhash(connection);
 
-  console.log(blockhash)
-
   const transaction = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey,
@@ -32,8 +30,6 @@ export async function transfer(connection: Connection, amount: number, sender: s
       lamports: amount
     })
   )
-
-  console.log(blockhash)
 
   transaction.recentBlockhash = blockhash;
   transaction.feePayer = fromPubkey;

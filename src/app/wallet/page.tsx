@@ -82,6 +82,7 @@ export default function Wallet() {
   async function handleSend(data: SendSolData) {
     if (!data.amount || !data.recipient) {
       // some failure
+      return;
     }
 
     const amount = data.amount * LAMPORTS_PER_SOL;
@@ -96,12 +97,26 @@ export default function Wallet() {
     await signer!.addSignature(transaction, solAddress);
     // broadcast
     const transactionHash = await broadcast(solConnection, transaction);
-
+    console.log(`Transaction sent!!! find here: https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
     // put transaction hash somewhere!
   }
 
-  function handleRedeem() {
-    alert("Redeemed!")
+  async function handleRedeem() {
+    try {
+      const queryParams = new URLSearchParams({
+        organizationId: organizationId!,
+      }).toString();
+      const getAddressResponse = await axios.post(`/api/redeem?${queryParams}`, { 
+        params: {
+          organizationId: organizationId
+        }
+      });
+  
+      console.log(`TurntCoins redeemed! Devenet Sol sent, check here: https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
+    } catch (e) {
+      console.log("Failed redeeming turntcoins")
+    }
+    
   }
 
   function truncateAddress(address: string, maxLength: number) {
