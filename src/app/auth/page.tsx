@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Email } from '@/types/types';
 import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
+import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 
 type EmailAuthData = {
   email: Email
@@ -34,11 +35,15 @@ export default function Auth() {
         targetPublicKey: keyPair.publicKeyUncompressed,
       });
 
-      // ToDo: store private key in localstorage
-      // eventually can maybe store in tgram cloud storage :eyes:
+      // ToDo: store temp key in telegram cloud storage instead of localstorage :eyes:
 
       if (response.status == 200) {
-        router.push("/email-auth")
+        setLocalStorageItemWithExipry(TURNKEY_EMBEDDED_KEY, keyPair.privateKey, MILLIS_15_MINUTES)
+        
+        const queryParams = new URLSearchParams({
+          organizationId: response.data.organizationId,
+        }).toString();
+        router.push(`/email-auth?${queryParams}`)
       }
     } catch (e) {
       console.log(e)

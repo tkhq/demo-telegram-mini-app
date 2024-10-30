@@ -3,20 +3,57 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import Input from "@/components/input";
 import { ArrowLeft } from 'lucide-react'
-import { SetStateAction, useState } from "react";
-import { useRouter } from 'next/navigation';
+import { SetStateAction, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from 'next/navigation';
+// import { TurnkeySigner } from "@turnkey/solana";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import axios from "axios";
+import { connect, balance } from "@/web3/web3"
 
-export default function Wallet({turntCoinBalance = 10}: {
-  turntCoinBalance: number
-}) {
+export default function Wallet() {
   const router = useRouter();
-  const balance = "10 ◎ devnet";
-  const [address, setAddress] = useState("GZhTCq7mwQ9nqBnVXookE944xQ5gwXM1Fyxcb4JpcMYN");
-  const [recipientAddress, setRecipientAddress] = useState("");
+  const searchParams = useSearchParams();
+  const organizationId = searchParams.get('organizationId');
+  const solConnection = connect()
+  const [solBalance, setSolBalance] = useState(0);
+  const [solAddress, setSolAddress] = useState("");
+  const [displaySolAddress, setDisplaySolAddress] = useState("...");
   const [sendAmount, setSendAmount] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState("");
+  const [turntCoinBalance, setTurnCoinBalance] = useState(0)
+
+  useEffect(() => {
+    async function getAddressAndBalance() {
+      try {
+        const getAddressResponse = await axios.get("/api/getAddress", { 
+          params: {
+            organizationId: organizationId
+          }
+        });
+
+        if(!getAddressResponse.data.address) {
+          setDisplaySolAddress("Failed Retrieving TurntCoin Address")
+          return
+        }
+
+        setSolAddress(getAddressResponse.data.address)
+        setDisplaySolAddress(truncateAddress(getAddressResponse.data.address, 16))
+
+        const solBal = await balance(solConnection, getAddressResponse.data.address)
+        setSolBalance(solBal / LAMPORTS_PER_SOL)
+      } catch (e) {
+        setDisplaySolAddress("Failed Retrieving TurntCoin Address")
+      }
+    }
+
+    getAddressAndBalance()
+  }, [])
 
   function handleBack() {
-    router.push('/play')
+    const queryParams = new URLSearchParams({
+      organizationId: organizationId!,
+    }).toString();
+    router.push(`/play?${queryParams}`)
   }
 
   function handleSend() {
@@ -40,18 +77,18 @@ export default function Wallet({turntCoinBalance = 10}: {
   }
 
   function copyAddress() {
-    const prevAddress = address;
-    navigator.clipboard.writeText(address);
+    const prevAddress = displaySolAddress;
+    navigator.clipboard.writeText(solAddress);
 
-    setAddress("Address copied!");
+    setDisplaySolAddress("Address copied!");
 
     setTimeout(() => {
-      setAddress(prevAddress); // Reverts to original text after 1 second
+      setDisplaySolAddress(prevAddress); // Reverts to original text after 1 second
     }, 1000);
   }
 
   function copyExplorerLink(event: any) {
-    let explorerLink = `https://explorer.solana.com/address/${address}?cluster=devnet`;
+    let explorerLink = `https://explorer.solana.com/address/${solAddress}?cluster=devnet`;
     navigator.clipboard.writeText(explorerLink);
 
     const target = event.target as HTMLSpanElement;
@@ -85,14 +122,15 @@ export default function Wallet({turntCoinBalance = 10}: {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-center break-all cursor-pointer hover:text-gray-400" onClick={copyAddress}>{truncateAddress(address, 16)}</p>
-          <p className="text-center font-semibold">Balance: {balance}</p>
+          <p className="text-center break-all cursor-pointer hover:text-gray-400" onClick={copyAddress}>{displaySolAddress}</p>
+          <p className="text-center font-semibold">Devnet Sol Balance: {solBalance} ◎</p>
         </CardContent>
       </Card>
 
       <Card className="mb-4">
         <CardHeader>
           <CardTitle className="text-lg text-center">Redeem TurntCoins</CardTitle>
+          <p className="text-center">100🔑 = 0.001 devnet sol!</p>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
@@ -125,10 +163,8 @@ export default function Wallet({turntCoinBalance = 10}: {
         </CardContent>
       </Card>
       <button onClick={handleLogout} className="w-full">
-        <Card className="bg-red-300 mb-4 hover:bg-red-400">
-          <CardHeader>
-            <CardTitle className="text-lg text-center">Logout</CardTitle>
-          </CardHeader>
+        <Card className="bg-red-400 mb-4 hover:bg-red-500">
+            <CardTitle className="text-lg text-center py-2">Logout</CardTitle>
         </Card>
       </button>
     </div>

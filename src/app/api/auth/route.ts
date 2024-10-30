@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { ApiKeyStamper, DEFAULT_SOLANA_ACCOUNTS, TurnkeyServerClient } from "@turnkey/sdk-server";
 import { decode, JwtPayload } from "jsonwebtoken";
 import { Email, OauthProviderParams } from "@/types/types";
+import { TURNTCOIN_WALLET_NAME } from '@/util/util';
 
 const PARENT_ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
@@ -22,6 +23,8 @@ const client = new TurnkeyServerClient({
 });
 
 export async function POST(req: Request) {
+  let organizationId;
+
   try {
     const { type, email, oidcToken, provider, targetPublicKey } = await req.json();
 
@@ -66,6 +69,9 @@ export async function POST(req: Request) {
           if (!userId || !apiKeyId) {
             return NextResponse.json({ error: "Failed initiating email authentication"}, { status: 500});
           }
+
+          // set the organization id for the response
+          organizationId = subOrg.subOrganizationId
         }
       } else if (findUserResponse.organizationIds.length == 1) {
         // user already exists perform email auth
@@ -80,6 +86,9 @@ export async function POST(req: Request) {
         if (!userId || !apiKeyId) {
           return NextResponse.json({ error: "Failed initiating email authentication"}, { status: 500});
         }
+
+        // set the organization id for the response
+        organizationId = findUserResponse.organizationIds[0]
       } else {
         // found multiple users? can't determine to know who to sign in - shouldnt get here
         return NextResponse.json({ error: "Error logging user in"}, { status: 500});
@@ -94,7 +103,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed performing user authentication"}, { status: 500});
   }
 
-  return NextResponse.json({ status: 200 })
+  return NextResponse.json({ organizationId: organizationId }, { status: 200 })
 }
 
 function isEmail(email: string): email is Email {
@@ -132,7 +141,7 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
     ],
     rootQuorumThreshold: 1,
     wallet: {
-      walletName: "TurntCoin Wallet",
+      walletName: TURNTCOIN_WALLET_NAME,
       accounts: DEFAULT_SOLANA_ACCOUNTS,
     }
   });

@@ -1,12 +1,14 @@
 'use client'
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Wallet as LucideWallet } from "lucide-react";
 
 export default function Play() {
   const router = useRouter()
+  const searchParams = useSearchParams();
+  const organizationId = searchParams.get('organizationId');
   const [rotation, setRotation] = useState(0);
   const [turntCoinBalance, setTurntCoinBalance] = useState(0);
 
@@ -20,7 +22,10 @@ export default function Play() {
   }
 
   function navigateWallet() {
-    router.push(`/wallet`)
+    const queryParams = new URLSearchParams({
+      organizationId: organizationId!,
+    }).toString();
+    router.push(`/wallet?${queryParams}`)
   }
 
   return (

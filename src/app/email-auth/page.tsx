@@ -3,7 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import Input from "@/components/input"
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { getLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
+import { decryptCredentialBundle } from "@turnkey/crypto";
+// import { TelegramStamper } from "@turnkey/telegram-cloud-storage-stamper";
 
 type EmailAuthCodeData = {
   authCode: string;
@@ -11,12 +14,36 @@ type EmailAuthCodeData = {
 
 export default function EmailAuth() {
   const router = useRouter()
+  const searchParams = useSearchParams();
+  const organizationId = searchParams.get('organizationId');
   const { register: emailAuthCodeFormRegister, handleSubmit: emailAuthCodeFormSubmit } =
     useForm<EmailAuthCodeData>();
 
   const handleEmailAuth = (data: EmailAuthCodeData) => {
     // Handle authentication code verification logic here
-    console.log('Verifying auth code:', data.authCode)
+    if (!data.authCode) {
+      // some failure here
+    }
+
+    let decryptedData;
+    try {
+      const embeddedKey = getLocalStorageItemWithExipry(TURNKEY_EMBEDDED_KEY);
+      decryptedData = decryptCredentialBundle(
+        data.authCode,
+        embeddedKey
+      );
+
+    } catch (e) {
+      // some failure here
+    }
+
+    if (!decryptedData) {
+      // some failure here
+    }
+
+    // ToDo: create a new telegram cloud storage stamper here
+    
+    router.push(`/play?${searchParams}`)
   }
 
   const handleReturnToLogin = () => {
@@ -55,7 +82,7 @@ export default function EmailAuth() {
               </span>
             </div>
           </div>
-          <button  onClick={handleReturnToLogin} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
+          <button onClick={handleReturnToLogin} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
             Return to Login
           </button>
         </CardContent>
