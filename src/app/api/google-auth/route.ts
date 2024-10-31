@@ -18,20 +18,20 @@ export async function POST(req: Request) {
       const queryParams = new URLSearchParams({
         error: "Failed google oauth",
       }).toString();
-      return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 302 });
+      return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 303 });
     }
 
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
       oidcToken: oidcToken!,
     }).toString();
-    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`, { status: 302 })
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`, { status: 303 })
   } catch (e) {
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
       error: "Failed google oauth",
     }).toString();
 
-    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 302 });
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 303 });
   }
 }
