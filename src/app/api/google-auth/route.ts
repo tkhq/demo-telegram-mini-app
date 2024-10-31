@@ -10,8 +10,8 @@ export async function POST(req: Request) {
     const params = new URLSearchParams(body);
 
     // To access parameters, use:
-    const credential = params.get('credential');
-    const oidcToken = credential?.split(".")[1]
+    const oidcToken = params.get('credential');
+    // const oidcToken = credential?.split(".")[1]
 
     if (!oidcToken) {
       // redirect to google oauth page
