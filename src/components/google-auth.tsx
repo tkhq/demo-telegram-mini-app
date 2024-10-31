@@ -15,7 +15,7 @@ export default function GoogleAuth() {
   useEffect(() => {
     const keyPair = generateP256KeyPair();
     setNonce(sha256(
-      keyPair.publicKey as `0x${string}`
+      keyPair.publicKeyUncompressed as `0x${string}`
     ).replace(/^0x/, ""))
 
     setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
