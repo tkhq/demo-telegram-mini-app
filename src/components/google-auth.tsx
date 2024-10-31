@@ -1,3 +1,5 @@
+'use client'
+
 import { getPublicKeyFromPrivateKeyHex, MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
 import { decryptCredentialBundle, generateP256KeyPair } from "@turnkey/crypto";
