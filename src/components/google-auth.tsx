@@ -69,7 +69,7 @@ export default function GoogleAuth() {
         useOneTap={false}
         auto_select={false}
         ux_mode="redirect"
-        login_uri={`${SITE_URL}/google-auth`}
+        login_uri={`${SITE_URL}/api/google-auth`}
       />
     </GoogleOAuthProvider>
   )
