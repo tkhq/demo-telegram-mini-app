@@ -1,5 +1,6 @@
 import { getPublicKey } from "@turnkey/crypto";
 import { uint8ArrayFromHexString, uint8ArrayToHexString } from "@turnkey/encoding";
+import { decode, JwtPayload } from "jsonwebtoken";
 
 export const TURNKEY_EMBEDDED_KEY = "TURNKEY_EMBDEDDED_KEY";
 export const MILLIS_15_MINUTES = 900000;
@@ -40,3 +41,13 @@ export function getPublicKeyFromPrivateKeyHex(privateKey: string) {
     getPublicKey(uint8ArrayFromHexString(privateKey), true)
   );
 };
+
+export function decodeJwt(credential: string): JwtPayload | null {
+  const decoded = decode(credential)
+
+  if (decoded && typeof decoded === "object" && "email" in decoded) {
+    return decoded as JwtPayload
+  }
+
+  return null
+}

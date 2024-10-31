@@ -2,9 +2,8 @@
 
 import { NextResponse } from 'next/server';
 import { ApiKeyStamper, DEFAULT_SOLANA_ACCOUNTS, TurnkeyServerClient } from "@turnkey/sdk-server";
-import { decode, JwtPayload } from "jsonwebtoken";
 import { Email, OauthProviderParams } from "@/types/types";
-import { TURNTCOIN_WALLET_NAME } from '@/util/util';
+import { decodeJwt, TURNTCOIN_WALLET_NAME } from '@/util/util';
 
 const PARENT_ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
@@ -26,7 +25,7 @@ export async function POST(req: Request) {
   let organizationId;
 
   try {
-    const { type, email, oidcToken, provider, targetPublicKey } = await req.json();
+    let { type, email, oidcToken, provider, targetPublicKey } = await req.json();
 
     // check for valid type parameter
     if (!type) {
@@ -72,6 +71,9 @@ export async function POST(req: Request) {
 
           // set the organization id for the response
           organizationId = subOrg.subOrganizationId
+
+          // return the org id
+          return NextResponse.json({ organizationId: organizationId }, { status: 200 })
         }
       } else if (findUserResponse.organizationIds.length == 1) {
         // user already exists perform email auth
@@ -89,21 +91,97 @@ export async function POST(req: Request) {
 
         // set the organization id for the response
         organizationId = findUserResponse.organizationIds[0]
+
+        // return the org id
+        return NextResponse.json({ organizationId: organizationId }, { status: 200 })
       } else {
         // found multiple users? can't determine to know who to sign in - shouldnt get here
         return NextResponse.json({ error: "Error logging user in"}, { status: 500});
       } 
     } else if (type === 'oauth') {
-      return NextResponse.json({ error: "Oauth not implemented"}, { status: 501});
+      // check for valid oidcToken parameter
+      if (!oidcToken) {
+        return NextResponse.json({ error: "Didnt receive valid odicToken parameter"}, { status: 400});
+      }
 
+      // check for valid oauth provider parameter
+      if (!provider) {
+        return NextResponse.json({ error: "Didnt receive valid oauth provider parameter"}, { status: 400});
+      }
+
+      // check if oidcToken exists already
+      const findUserResponse = await client.getSubOrgIds({
+        organizationId: PARENT_ORG_ID,
+        filterType: "OIDC_TOKEN",
+        filterValue: oidcToken
+      })
+
+      const decoded = decodeJwt(oidcToken)
+      if (decoded?.email) {
+        email = decoded.email
+      }
+
+      const oauthProviders ={
+        providerName: provider,
+        oidcToken: oidcToken,
+      }
+
+      // if oidcToken doesnt exist within any sub orgs create new sub org and perform oauth
+      if (findUserResponse.organizationIds.length == 0) {
+        // create new sub org
+        const { subOrg, user } = await createSubOrg(email, oauthProviders)
+        // if sub org creation was successful perform oauth
+        if (subOrg && user) {
+          // perform oauth
+          const oauthResponse = await client.oauth({
+            organizationId: subOrg.subOrganizationId,
+            targetPublicKey,
+            oidcToken
+          });
+        
+          // validate response from oauth
+          const {userId, apiKeyId, credentialBundle } = oauthResponse;
+          if (!userId || !apiKeyId) {
+            return NextResponse.json({ error: "Failed initiating oauth"}, { status: 500});
+          }
+
+          // set the organization id for the response
+          organizationId = subOrg.subOrganizationId
+
+          // return the organization id and credential bundle
+          return NextResponse.json({ organizationId: organizationId, credentialBundle: credentialBundle }, { status: 200 })
+        }
+      } else if (findUserResponse.organizationIds.length == 1) {
+        // perform oauth
+          const oauthResponse = await client.oauth({
+            organizationId: findUserResponse.organizationIds[0],
+            targetPublicKey,
+            oidcToken
+          });
+        
+          // validate response from oauth
+          const {userId, apiKeyId, credentialBundle } = oauthResponse;
+          if (!userId || !apiKeyId) {
+            return NextResponse.json({ error: "Failed initiating oauth"}, { status: 500});
+          }
+
+          // set the organization id for the response
+          organizationId = findUserResponse.organizationIds[0]
+
+        // return the organization id and credential bundle
+        return NextResponse.json({ organizationId: organizationId, credentialBundle: credentialBundle }, { status: 200 })
+      } else {
+        // found multiple users? can't determine to know who to sign in - shouldnt get here
+        return NextResponse.json({ error: "Error logging user in"}, { status: 500});
+      } 
+
+      return NextResponse.json({ error: "Oauth not implemented"}, { status: 501});
     } else {
       return NextResponse.json({ error: "Didnt receive valid type parameter"}, { status: 400});
     }
   } catch (e) {
     return NextResponse.json({ error: "Failed performing user authentication"}, { status: 500});
   }
-
-  return NextResponse.json({ organizationId: organizationId }, { status: 200 })
 }
 
 function isEmail(email: string): email is Email {
@@ -117,7 +195,7 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
   let userEmail = email;
 
   if (oauth) {
-    // populate oauth providers
+    oauthProviders.push(oauth)
   }
 
   if(!userEmail) {

@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import  Input from "@/components/input"
+import GoogleAuth from "@/components/google-auth";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Email } from '@/types/types';
@@ -22,8 +23,6 @@ export default function Auth() {
   const router = useRouter();
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
-  const { register: oauthFormRegister, handleSubmit: oauthFormSubmit } =
-    useForm<OAuthData>();
 
   async function handleEmailLogin (data: EmailAuthData) {
     const keyPair = generateP256KeyPair();
@@ -39,7 +38,7 @@ export default function Auth() {
 
       if (response.status == 200) {
         setLocalStorageItemWithExipry(TURNKEY_EMBEDDED_KEY, keyPair.privateKey, MILLIS_15_MINUTES)
-        
+
         const queryParams = new URLSearchParams({
           organizationId: response.data.organizationId,
         }).toString();
@@ -94,16 +93,8 @@ export default function Auth() {
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                Google
-              </button>
-              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                Apple
-              </button>
-              <button onClick={() => oauthFormSubmit(handleOAuthLogin)} className="px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                Facebook
-              </button>
+          <div>
+              <GoogleAuth />
           </div>
         </CardContent>
       </Card>

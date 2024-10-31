@@ -47,7 +47,7 @@ export default function EmailAuth() {
       apiPrivateKey: decryptedData!,
     });
     
-    router.push(`/play?${searchParams}`)
+    router.push(`/play?${searchParams}`);
   }
 
   const handleReturnToLogin = () => {
