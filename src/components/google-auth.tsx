@@ -8,7 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID!
-const SITE_URL = process.env.NEXT_PUBLICPUBLIC_SITE_URL!
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!
 
 export default function GoogleAuth() {
   const router = useRouter()
