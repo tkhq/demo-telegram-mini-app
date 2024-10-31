@@ -8,7 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID!
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL!
+const SITE_URL = process.env.PUBLIC_SITE_URL!
 
 export default function GoogleAuth() {
   const router = useRouter()
@@ -74,7 +74,7 @@ export default function GoogleAuth() {
         useOneTap={false}
         auto_select={false}
         ux_mode="redirect"
-        login_uri={`${BASE_URL}/play`}
+        login_uri={`${SITE_URL}/play`}
       />
     </GoogleOAuthProvider>
   )
