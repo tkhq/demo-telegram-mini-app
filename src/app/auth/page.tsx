@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
 import  Input from "@/components/input"
 import GoogleAuth from "@/components/google-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Email } from '@/types/types';
 import axios from "axios";
@@ -17,7 +17,8 @@ type EmailAuthData = {
 
 export default function Auth() {
   const router = useRouter();
-  const [errorText, setErrorText] = useState("");
+  const searchParms = useSearchParams();
+  const [errorText, setErrorText] = useState(searchParms.get('error') || "");
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
 

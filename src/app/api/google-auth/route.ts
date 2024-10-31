@@ -1,5 +1,6 @@
 'use server'
 
+import axios from 'axios';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -11,12 +12,27 @@ export async function POST(req: Request) {
     const credential = params.get('credential');
 
     const oidcToken = credential?.split(".")[1]
-    console.log(oidcToken)
 
+    if (!oidcToken) {
+      // redirect to google oauth page
+      const queryParams = new URLSearchParams({
+        error: "Failed google oauth",
+      }).toString();
+
+      NextResponse.redirect(`/auth${queryParams}`);
+    }
+
+    // redirect to google oauth page
+    const queryParams = new URLSearchParams({
+      oidcToken: oidcToken!,
+    }).toString();
+    NextResponse.redirect(`/google-auth${queryParams}`)
   } catch (e) {
-    return NextResponse.json({ error: e }, { status: 200})
-  }
-  
+    // redirect to google oauth page
+    const queryParams = new URLSearchParams({
+      error: "Failed google oauth",
+    }).toString();
 
-  return NextResponse.json({ status: 200})
+    NextResponse.redirect(`/auth${queryParams}`);
+  }
 }

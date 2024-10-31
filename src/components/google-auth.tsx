@@ -15,50 +15,7 @@ export default function GoogleAuth() {
   const keyPair = generateP256KeyPair();
   const nonce = keyPair.publicKey;
 
-  const onSuccess = async (credentialResponse: CredentialResponse) => {
-    console.log("Am I getting here??");
-    // if oauth with google was successful start the auth process
-    if (credentialResponse.credential) {
-      try {
-        const response = await axios.post("/api/auth", {
-          type: "oauth",
-          oidcToken: credentialResponse.credential,
-          provider: "Google Auth - Embedded Wallet",
-          targetPublicKey: keyPair.publicKeyUncompressed,
-        });
-  
-        if (response.status == 200) {
-          // decrypt respone bundle and create a telegram stamper to put creds in cloud storage
-          const decryptedData = decryptCredentialBundle(
-            response.data.credentialBundle,
-            keyPair.privateKey
-          );
-
-          if (!decryptedData) {
-            // some failure
-          }
-
-          // This stores the api credentials obtained from oauth into telegram cloud storage and those credentials can be used in other places in your application
-          await TelegramCloudStorageStamper.create({
-            apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
-            apiPrivateKey: decryptedData!,
-          });
-
-          const queryParams = new URLSearchParams({
-            organizationId: response.data.organizationId,
-          }).toString();
-          router.push(`/play${queryParams}`);
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }
-  }
-
-  // const googleLogin = useGoogleLogin({
-  //   onSuccess,
-  //   flow: 'implicit',
-  // })
+  const onSuccess = async (credentialResponse: CredentialResponse) => {}
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
