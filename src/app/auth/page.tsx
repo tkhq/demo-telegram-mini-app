@@ -10,6 +10,7 @@ import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { useState } from "react";
+import { useEffect } from "react";
 
 type EmailAuthData = {
   email: Email
@@ -18,9 +19,22 @@ type EmailAuthData = {
 export default function Auth() {
   const router = useRouter();
   const searchParms = useSearchParams();
+  const [showGoogleOauth, setShowGoogleOauth] = useState(false)
   const [errorText, setErrorText] = useState(searchParms.get('error') || "");
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
+
+  useEffect(() => {
+    async function fetchGoogleOauthStatus() {
+      const googleOauthStatus = await fetch("https://accounts.google.com/gsi/client")
+
+      if (googleOauthStatus.status == 200) {
+        setShowGoogleOauth(true)
+      }
+    }
+
+    fetchGoogleOauthStatus();
+  }, [])
 
   async function handleEmailLogin (data: EmailAuthData) {
     const keyPair = generateP256KeyPair();
@@ -69,19 +83,27 @@ export default function Auth() {
               </button>
             </form>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-          <div>
-            <GoogleAuth />
-          </div>
+          {showGoogleOauth ?  
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              <div>
+                <GoogleAuth />
+              </div>
+            </>
+            :
+            <button className="w-full px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+                To enable Google Oauth try on a desktop platform
+            </button>
+          }
         </CardContent>
       </Card>
     </div>
