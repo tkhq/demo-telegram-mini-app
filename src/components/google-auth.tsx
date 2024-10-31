@@ -15,7 +15,7 @@ export default function GoogleAuth() {
   ).replace(/^0x/, "")
 
   setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
-  setLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY, keyPair.publicKey, MILLIS_15_MINUTES);
+  setLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY, keyPair.publicKeyUncompressed, MILLIS_15_MINUTES);
 
   const onSuccess = async (credentialResponse: CredentialResponse) => {}
 
