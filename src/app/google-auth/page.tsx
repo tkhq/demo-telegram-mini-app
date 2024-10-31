@@ -1,6 +1,6 @@
 'use client'
 
-import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, GOOGLE_OAUTH_DECRYPT_KEY } from "@/util/util";
+import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, GOOGLE_OAUTH_DECRYPT_KEY, GOOGLE_OAUTH_PUBLIC_KEY } from "@/util/util";
 import { decryptCredentialBundle } from "@turnkey/crypto";
 import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
@@ -23,12 +23,13 @@ export default function GoogleAuth() {
 
 	useEffect(() => {
 		const oauthDecryptyKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
+		const oauthPublicKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY);
 		async function performGoogleAuth() {
 			const response = await axios.post("/api/auth", {
 				type: "oauth",
 				oidcToken: oidcToken,
 				provider: "Google Auth - Embedded Wallet",
-				targetPublicKey: getPublicKeyFromPrivateKeyHex(oauthDecryptyKey),
+				targetPublicKey: oauthPublicKey,
 			});
 		
 			if (response.status == 200) {
@@ -58,7 +59,14 @@ export default function GoogleAuth() {
 			}
 		}
 
-		performGoogleAuth();
+		try {
+			performGoogleAuth();
+		} catch (e) {
+			const queryParams = new URLSearchParams({
+				error: "Failed google oauth",
+			}).toString();
+			router.push(`/auth?${queryParams}`);
+		}
 	})
 
 	return (

@@ -26,11 +26,6 @@ export async function POST(req: Request) {
 
   try {
     let { type, email, oidcToken, provider, targetPublicKey } = await req.json();
-    console.log("oidcToken")
-    console.log(oidcToken)
-    console.log("provider")
-    console.log(provider)
-
     // check for valid type parameter
     if (!type) {
       return NextResponse.json({ error: "Didnt receive type parameter"}, { status: 400});
