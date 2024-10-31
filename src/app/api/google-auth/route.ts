@@ -11,30 +11,27 @@ export async function POST(req: Request) {
 
     // To access parameters, use:
     const credential = params.get('credential');
-    console.log(credential)
-
     const oidcToken = credential?.split(".")[1]
-    console.log(oidcToken)
 
     if (!oidcToken) {
       // redirect to google oauth page
       const queryParams = new URLSearchParams({
-        error: "Failed google oauth1",
+        error: "Failed google oauth",
       }).toString();
-      return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
+      return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 302 });
     }
 
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
       oidcToken: oidcToken!,
     }).toString();
-    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`)
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`, { status: 302 })
   } catch (e) {
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
-      error: "Failed google oauth2",
+      error: "Failed google oauth",
     }).toString();
 
-    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`, { status: 302 });
   }
 }
