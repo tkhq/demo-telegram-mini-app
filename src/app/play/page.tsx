@@ -16,10 +16,6 @@ export default function Play() {
     let newRotation = rotation + 18
     setRotation(newRotation);
     setTurntCoinBalance(turntCoinBalance + 5)
-
-    if(newRotation % 360 == 0) {
-      console.log("360")
-    }
   }
 
   function navigateWallet() {

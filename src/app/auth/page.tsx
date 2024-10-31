@@ -9,6 +9,7 @@ import { Email } from '@/types/types';
 import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
+import { useState } from "react";
 
 type EmailAuthData = {
   email: Email
@@ -16,6 +17,7 @@ type EmailAuthData = {
 
 export default function Auth() {
   const router = useRouter();
+  const [errorText, setErrorText] = useState("");
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
 
@@ -40,7 +42,7 @@ export default function Auth() {
         router.push(`/email-auth?${queryParams}`)
       }
     } catch (e) {
-      console.log(e)
+      setErrorText("Failed initiating email authentication");
     }
   }
 
@@ -53,6 +55,9 @@ export default function Auth() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <form className="space-y-2">
+              {errorText &&
+                <p className="text-red-600 text-center">{errorText}</p>
+              }
               <Input
                 type="email"
                 placeholder="Enter your email"

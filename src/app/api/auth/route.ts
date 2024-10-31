@@ -75,6 +75,7 @@ export async function POST(req: Request) {
           // return the org id
           return NextResponse.json({ organizationId: organizationId }, { status: 200 })
         }
+        return NextResponse.json({ error: "Failed creating user"}, { status: 500});
       } else if (findUserResponse.organizationIds.length == 1) {
         // user already exists perform email auth
         const emailAuthResponse = await client.emailAuth({
@@ -151,6 +152,7 @@ export async function POST(req: Request) {
           // return the organization id and credential bundle
           return NextResponse.json({ organizationId: organizationId, credentialBundle: credentialBundle }, { status: 200 })
         }
+        return NextResponse.json({ error: "Failed creating user"}, { status: 500});
       } else if (findUserResponse.organizationIds.length == 1) {
         // perform oauth
           const oauthResponse = await client.oauth({
@@ -173,9 +175,7 @@ export async function POST(req: Request) {
       } else {
         // found multiple users? can't determine to know who to sign in - shouldnt get here
         return NextResponse.json({ error: "Error logging user in"}, { status: 500});
-      } 
-
-      return NextResponse.json({ error: "Oauth not implemented"}, { status: 501});
+      }
     } else {
       return NextResponse.json({ error: "Didnt receive valid type parameter"}, { status: 400});
     }
@@ -199,7 +199,7 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
   }
 
   if(!userEmail) {
-    // return failure?
+    throw new Error("No email for user provided")
   }
 
   const subOrganizationName = `TurntCoin Sub Org - ${userEmail}`

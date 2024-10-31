@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { decryptCredentialBundle } from "@turnkey/crypto";
 import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import { useState } from "react";
 
 type EmailAuthCodeData = {
   authCode: string;
@@ -14,6 +15,7 @@ type EmailAuthCodeData = {
 
 export default function EmailAuth() {
   const router = useRouter()
+  const [errorText, setErrorText] = useState("");
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organizationId');
   const { register: emailAuthCodeFormRegister, handleSubmit: emailAuthCodeFormSubmit } =
@@ -22,7 +24,7 @@ export default function EmailAuth() {
   const handleEmailAuth = async (data: EmailAuthCodeData) => {
     // Handle authentication code verification logic here
     if (!data.authCode) {
-      // some failure here
+      setErrorText("Failed decrypting email auth code");
     }
 
     let decryptedData;
@@ -33,21 +35,20 @@ export default function EmailAuth() {
         embeddedKey
       );
 
+      if (!decryptedData) {
+        setErrorText("Failed decrypting email auth code");
+      }
+  
+      // This stores the api credentials obtained from email auth into telegram cloud storage and those credentials can be used in other places in your application
+      await TelegramCloudStorageStamper.create({
+        apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
+        apiPrivateKey: decryptedData!,
+      });
+      
+      router.push(`/play?${searchParams}`);
     } catch (e) {
-      // some failure here
+      setErrorText("Failed decrypting email auth code");
     }
-
-    if (!decryptedData) {
-      // some failure here
-    }
-
-    // This stores the api credentials obtained from email auth into telegram cloud storage and those credentials can be used in other places in your application
-    await TelegramCloudStorageStamper.create({
-      apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
-      apiPrivateKey: decryptedData!,
-    });
-    
-    router.push(`/play?${searchParams}`);
   }
 
   const handleReturnToLogin = () => {
@@ -66,6 +67,9 @@ export default function EmailAuth() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <form className="space-y-2">
+              {errorText &&
+                <p className="text-red-600 text-center">{errorText}</p>
+              }
               <Input
                 type="text"
                 placeholder="Paste here"

@@ -12,6 +12,7 @@ import axios from "axios";
 import { connect, balance, transfer, broadcast } from "@/web3/web3"
 import { useForm } from "react-hook-form";
 import TelegramCloudStorageStamper, { TTelegramCloudStorageStamperConfig } from "@turnkey/telegram-cloud-storage-stamper";
+import Link from "next/link";
 
 type SendSolData = {
   amount: number;
@@ -28,6 +29,10 @@ export default function Wallet() {
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
   const [turntCoinBalance, setTurnCoinBalance] = useState(0);
   const [signer, setSigner] = useState<TurnkeySigner | null>(null);
+  const [sendErrorText, setSendErrorText] = useState("");
+  const [sendSuccessLink, setSendSuccessLink] = useState("");
+  const [redeemErrorText, setRedeemErrorText] = useState("");
+  const [redeemSuccessLink, setredeemSuccessLink] = useState("");
 
   const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
     useForm<SendSolData>();
@@ -81,14 +86,16 @@ export default function Wallet() {
 
   async function handleSend(data: SendSolData) {
     if (!data.amount || !data.recipient) {
-      // some failure
+      setSendErrorText("Please enter both an amount and recipient");
+      setSendSuccessLink("");
       return;
     }
 
     const amount = data.amount * LAMPORTS_PER_SOL;
 
     if (amount >= solBalance * LAMPORTS_PER_SOL) {
-      // some failure
+      setSendErrorText("Insufficient balance");
+      setSendSuccessLink("");
       return;
     }
 
@@ -97,8 +104,8 @@ export default function Wallet() {
     await signer!.addSignature(transaction, solAddress);
     // broadcast
     const transactionHash = await broadcast(solConnection, transaction);
-    console.log(`Transaction sent!!! find here: https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
-    // put transaction hash somewhere!
+    setSendErrorText("");
+    setSendSuccessLink(`https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
   }
 
   async function handleRedeem() {
@@ -111,12 +118,14 @@ export default function Wallet() {
           organizationId: organizationId
         }
       });
-  
-      console.log(`TurntCoins redeemed! Devenet Sol sent, check here: https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
+
+      setRedeemErrorText("");
+      setredeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
+      return;
     } catch (e) {
-      console.log("Failed redeeming turntcoins")
+      setRedeemErrorText("Failed redeeming TurntCoins");
+      setredeemSuccessLink("");
     }
-    
   }
 
   function truncateAddress(address: string, maxLength: number) {
@@ -188,6 +197,14 @@ export default function Wallet() {
           <p className="text-center">100🔑 = 0.001 devnet sol!</p>
         </CardHeader>
         <CardContent>
+          {redeemErrorText &&
+            <p className="text-red-600 text-center">{redeemErrorText}</p>
+          }
+          {redeemSuccessLink &&
+            <div className="text-center">
+              <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setSendSuccessLink("")}}>Click to navigate to explorer in another tab</Link>
+            </div>
+          }
           <div className="flex items-center justify-between">
             <p className="text-xl font-semibold">Balance: {turntCoinBalance} 🔑</p>
             <button onClick={handleRedeem} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
@@ -199,6 +216,14 @@ export default function Wallet() {
           <CardTitle className="text-lg text-center">Send Devnet Solana</CardTitle>
         </CardHeader>
         <CardContent>
+          {sendErrorText &&
+            <p className="text-red-600 text-center">{sendErrorText}</p>
+          }
+          {sendSuccessLink &&
+            <div className="text-center">
+              <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setSendSuccessLink("")}}>Click to navigate to explorer in another tab</Link>
+            </div>
+          }
           <div className="flex space-x-2">
             <Input
               type="text"
