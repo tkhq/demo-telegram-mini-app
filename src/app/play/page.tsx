@@ -18,6 +18,7 @@ export default function Play() {
     setTurntCoinBalance(turntCoinBalance + 5)
 
     if(newRotation % 360 == 0) {
+      console.log("360")
     }
   }
 
