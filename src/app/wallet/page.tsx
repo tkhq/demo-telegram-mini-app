@@ -32,7 +32,7 @@ export default function Wallet() {
   const [sendErrorText, setSendErrorText] = useState("");
   const [sendSuccessLink, setSendSuccessLink] = useState("");
   const [redeemErrorText, setRedeemErrorText] = useState("");
-  const [redeemSuccessLink, setredeemSuccessLink] = useState("");
+  const [redeemSuccessLink, setRedeemSuccessLink] = useState("");
 
   const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
     useForm<SendSolData>();
@@ -120,11 +120,11 @@ export default function Wallet() {
       });
 
       setRedeemErrorText("");
-      setredeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
+      setRedeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
       return;
     } catch (e) {
       setRedeemErrorText("Failed redeeming TurntCoins");
-      setredeemSuccessLink("");
+      setRedeemSuccessLink("");
     }
   }
 
@@ -202,7 +202,7 @@ export default function Wallet() {
           }
           {redeemSuccessLink &&
             <div className="text-center">
-              <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setSendSuccessLink("")}}>Click to navigate to explorer in another tab</Link>
+              <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setRedeemSuccessLink("")}}>Succes!! Click to navigate to explorer in another tab</Link>
             </div>
           }
           <div className="flex items-center justify-between">

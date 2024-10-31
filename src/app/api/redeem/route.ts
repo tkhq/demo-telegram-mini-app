@@ -12,7 +12,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 const API_PUBLIC_KEY = process.env.API_PUBLIC_KEY
 const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY
 const PARENT_SOLANA_ADDRESS = process.env.PARENT_SOLANA_ADDRESS
-const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL
+const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
 
 const stamper = new ApiKeyStamper({
     apiPublicKey: API_PUBLIC_KEY!,
