@@ -24,18 +24,21 @@ export default function EmailAuth() {
   const handleEmailAuth = async (data: EmailAuthCodeData) => {
     // Handle authentication code verification logic here
     if (!data.authCode) {
+      console.log("Here")
       setErrorText("Failed decrypting email auth code");
     }
 
     let decryptedData;
     try {
       const embeddedKey = getLocalStorageItemWithExipry(TURNKEY_EMBEDDED_KEY);
+      console.log("Here4")
       decryptedData = decryptCredentialBundle(
         data.authCode,
         embeddedKey
       );
 
       if (!decryptedData) {
+        console.log("Here2")
         setErrorText("Failed decrypting email auth code");
       }
   
@@ -47,6 +50,7 @@ export default function EmailAuth() {
       
       router.push(`/play?${searchParams}`);
     } catch (e) {
+      console.log(e)
       setErrorText("Failed decrypting email auth code");
     }
   }
