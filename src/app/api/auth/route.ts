@@ -26,6 +26,10 @@ export async function POST(req: Request) {
 
   try {
     let { type, email, oidcToken, provider, targetPublicKey } = await req.json();
+    console.log("oidcToken")
+    console.log(oidcToken)
+    console.log("provider")
+    console.log(provider)
 
     // check for valid type parameter
     if (!type) {
@@ -180,6 +184,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Didnt receive valid type parameter"}, { status: 400});
     }
   } catch (e) {
+    console.log(e)
     return NextResponse.json({ error: "Failed performing user authentication"}, { status: 500});
   }
 }
@@ -214,7 +219,13 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
         userEmail,
         oauthProviders,
         authenticators: [],
-        apiKeys: [],
+        apiKeys: [
+          {
+            apiKeyName: "temp key",
+            curveType: "API_KEY_CURVE_P256",
+            publicKey: API_PUBLIC_KEY!,
+          }
+        ],
       },
     ],
     rootQuorumThreshold: 1,
