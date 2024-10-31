@@ -49,21 +49,6 @@ export default function Auth() {
     }
   }
 
-  async function handleOAuthLogin (data: OAuthData) {
-    const keyPair = generateP256KeyPair();
-
-    try {
-      const response = await axios.post("/api/auth", {
-        type: "oauth",
-        oidcToken: data.oidcToken,
-        provider: data.provider,
-        targetPublicKey: keyPair.publicKeyUncompressed,
-      });
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background">
