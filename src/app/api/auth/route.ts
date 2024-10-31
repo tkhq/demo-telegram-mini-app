@@ -214,13 +214,7 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
         userEmail,
         oauthProviders,
         authenticators: [],
-        apiKeys: [
-          {
-            apiKeyName: "temp key",
-            curveType: "API_KEY_CURVE_P256",
-            publicKey: API_PUBLIC_KEY!,
-          }
-        ],
+        apiKeys: [],
       },
     ],
     rootQuorumThreshold: 1,
