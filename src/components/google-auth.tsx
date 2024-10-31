@@ -11,7 +11,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!
 export default function GoogleAuth() {
   const keyPair = generateP256KeyPair();
   const nonce = sha256(
-    keyPair.publicKey as `0x${string}`
+    keyPair.publicKeyUncompressed as `0x${string}`
   ).replace(/^0x/, "")
 
   setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
