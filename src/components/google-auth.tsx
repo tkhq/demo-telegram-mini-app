@@ -74,7 +74,7 @@ export default function GoogleAuth() {
         useOneTap={false}
         auto_select={false}
         ux_mode="redirect"
-        login_uri={`${SITE_URL}/play`}
+        login_uri={`${SITE_URL}`}
       />
     </GoogleOAuthProvider>
   )
