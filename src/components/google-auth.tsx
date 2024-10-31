@@ -1,7 +1,7 @@
 'use client'
 
 import { getPublicKeyFromPrivateKeyHex } from "@/util/util";
-import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google"
+import { CredentialResponse, useGoogleLogin, GoogleOAuthProvider, TokenResponse, GoogleLogin } from "@react-oauth/google"
 import { decryptCredentialBundle, generateP256KeyPair } from "@turnkey/crypto";
 import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
@@ -20,7 +20,7 @@ export default function GoogleAuth() {
       try {
         const response = await axios.post("/api/auth", {
           type: "oauth",
-          oidcToken: credentialResponse,
+          oidcToken: credentialResponse.credential,
           provider: "Google Auth - Embedded Wallet",
           targetPublicKey: keyPair.publicKeyUncompressed,
         });
@@ -54,8 +54,17 @@ export default function GoogleAuth() {
     }
   }
 
+  // const googleLogin = useGoogleLogin({
+  //   onSuccess,
+  //   flow: 'implicit',
+  // })
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
+      
+      {/* <button onClick={() => googleLogin() }className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+        Google
+      </button>  */}
       <GoogleLogin
         nonce={nonce}
         width={235}
@@ -63,6 +72,7 @@ export default function GoogleAuth() {
         onSuccess={onSuccess}
         useOneTap={false}
         auto_select={false}
+        ux_mode="redirect"
       />
     </GoogleOAuthProvider>
   )
