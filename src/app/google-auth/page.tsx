@@ -63,7 +63,7 @@ export default function GoogleAuth() {
 					const queryParams = new URLSearchParams({
 							organizationId: response.data.organizationId,
 					}).toString();
-					router.push(`/play${queryParams}`);
+					router.push(`/play?${queryParams}`);
 				}
 			} catch (e) {
 				const queryParams = new URLSearchParams({
