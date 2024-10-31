@@ -7,6 +7,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import RootLayout from "../layout";
 
 export default function GoogleAuth() {
 	const router = useRouter();
@@ -22,7 +23,7 @@ export default function GoogleAuth() {
 	}
 
 	useEffect(() => {
-		const oauthDecryptyKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
+		const oauthDecryptKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
 		const oauthPublicKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY);
 		async function performGoogleAuth() {
 			const response = await axios.post("/api/auth", {
@@ -36,7 +37,7 @@ export default function GoogleAuth() {
 				// decrypt respone bundle and create a telegram stamper to put creds in cloud storage
 				const decryptedData = decryptCredentialBundle(
 					response.data.credentialBundle,
-					oauthDecryptyKey
+					oauthDecryptKey
 				);
 		
 				if (!decryptedData) {
@@ -70,6 +71,8 @@ export default function GoogleAuth() {
 	})
 
 	return (
+		<RootLayout>
 			<>Loading...</>
+		</RootLayout>
 	)
 }
