@@ -14,11 +14,6 @@ type EmailAuthData = {
   email: Email
 }
 
-type OAuthData = {
-  oidcToken: string;
-  provider: string;
-}
-
 export default function Auth() {
   const router = useRouter();
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
