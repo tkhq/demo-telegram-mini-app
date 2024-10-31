@@ -16,6 +16,7 @@ export default function GoogleAuth() {
   const nonce = keyPair.publicKey;
 
   const onSuccess = async (credentialResponse: CredentialResponse) => {
+    console.log("Am I getting here??");
     // if oauth with google was successful start the auth process
     if (credentialResponse.credential) {
       try {

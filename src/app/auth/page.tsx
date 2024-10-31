@@ -79,7 +79,7 @@ export default function Auth() {
             </div>
           </div>
           <div>
-              <GoogleAuth />
+            <GoogleAuth />
           </div>
         </CardContent>
       </Card>
