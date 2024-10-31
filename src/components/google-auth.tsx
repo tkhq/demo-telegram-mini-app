@@ -1,19 +1,20 @@
 'use client'
 
-import { getPublicKeyFromPrivateKeyHex } from "@/util/util";
-import { CredentialResponse, useGoogleLogin, GoogleOAuthProvider, TokenResponse, GoogleLogin } from "@react-oauth/google"
-import { decryptCredentialBundle, generateP256KeyPair } from "@turnkey/crypto";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import { GOOGLE_OAUTH_DECRYPT_KEY, MILLIS_15_MINUTES, setLocalStorageItemWithExipry } from "@/util/util";
+import { CredentialResponse, GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google"
+import { generateP256KeyPair } from "@turnkey/crypto";
+import { sha256 } from "viem";
 
 const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID!
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!
 
 export default function GoogleAuth() {
-  const router = useRouter()
   const keyPair = generateP256KeyPair();
-  const nonce = keyPair.publicKey;
+  const nonce = sha256(
+    keyPair.publicKey as `0x${string}`
+  ).replace(/^0x/, "")
+
+  setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
 
   const onSuccess = async (credentialResponse: CredentialResponse) => {}
 

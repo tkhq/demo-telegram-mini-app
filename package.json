@@ -26,7 +26,8 @@
     "next": "14.2.16",
     "react": "^18",
     "react-dom": "^18",
-    "react-hook-form": "^7.53.1"
+    "react-hook-form": "^7.53.1",
+    "viem": "^2.21.37"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.7",

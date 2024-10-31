@@ -1,7 +1,7 @@
 'use client'
 
-import { getPublicKeyFromPrivateKeyHex } from "@/util/util";
-import { decryptCredentialBundle, generateP256KeyPair } from "@turnkey/crypto";
+import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, GOOGLE_OAUTH_DECRYPT_KEY } from "@/util/util";
+import { decryptCredentialBundle } from "@turnkey/crypto";
 import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -22,20 +22,20 @@ export default function GoogleAuth() {
 	}
 
 	useEffect(() => {
-		const keyPair = generateP256KeyPair();
+		const oauthDecryptyKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
 		async function performGoogleAuth() {
 			const response = await axios.post("/api/auth", {
 				type: "oauth",
 				oidcToken: oidcToken,
 				provider: "Google Auth - Embedded Wallet",
-				targetPublicKey: keyPair.publicKeyUncompressed,
+				targetPublicKey: getPublicKeyFromPrivateKeyHex(oauthDecryptyKey),
 			});
 		
 			if (response.status == 200) {
 				// decrypt respone bundle and create a telegram stamper to put creds in cloud storage
 				const decryptedData = decryptCredentialBundle(
 					response.data.credentialBundle,
-					keyPair.privateKey
+					oauthDecryptyKey
 				);
 		
 				if (!decryptedData) {
