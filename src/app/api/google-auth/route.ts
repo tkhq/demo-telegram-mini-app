@@ -3,27 +3,16 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  console.log(req)
+  const body = await req.text();
+  const params = new URLSearchParams(body);
 
-  console.log(req.body)
+  // To access parameters, use:
+  const value = params.get('credential');
 
-  const reader = req.body?.getReader()
-  let result = '';
-  const decoder = new TextDecoder();
+  console.log(value)
 
-  while (true) {
-    const { done, value } = await reader!.read();
-    if (done) break;
-    result += decoder.decode(value, { stream: true });
-  }
-
-  console.log(result)
-  console.log("result")
-
-  // Decode any remaining bytes
-  result += decoder.decode();
-
-  console.log(result)
+  // Or to get all parameters as an object:
+  const paramsObject = Object.fromEntries(params);
 
   return NextResponse.json({ status: 200})
 }
