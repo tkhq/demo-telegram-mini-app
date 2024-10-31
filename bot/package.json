@@ -1,24 +1,15 @@
 {
-  "name": "turntcoin-bot",
+  "name": "bot",
   "version": "0.1.0",
   "description": "",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
-    "dev": "nodemon index.ts",
-    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^3.1.7",
-    "typescript": "^5.6.3"
-  },
   "dependencies": {
-    "@vercel/node": "^3.2.24",
     "dotenv": "^16.4.5",
-    "grammy": "^1.30.1",
-    "ts-node": "^10.9.2"
+    "node-telegram-bot-api": "^0.66.0"
   }
 }
