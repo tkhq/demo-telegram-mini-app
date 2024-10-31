@@ -25,6 +25,12 @@ export default function GoogleAuth() {
 	useEffect(() => {
 		const oauthDecryptKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
 		const oauthPublicKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY);
+
+		//ensure we are in a telegram context by including the telegram web app script
+		const script = document.createElement('script');
+		script.src = "https://telegram.org/js/telegram-web-app.js";
+		document.head.appendChild(script);
+		
 		async function performGoogleAuth() {
 			const response = await axios.post("/api/auth", {
 				type: "oauth",
