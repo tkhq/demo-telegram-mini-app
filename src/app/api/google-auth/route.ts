@@ -21,20 +21,20 @@ export async function POST(req: Request) {
       const queryParams = new URLSearchParams({
         error: "Failed google oauth1",
       }).toString();
-      NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
+      return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
     }
 
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
       oidcToken: oidcToken!,
     }).toString();
-    NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`)
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/google-auth?${queryParams}`)
   } catch (e) {
     // redirect to google oauth page
     const queryParams = new URLSearchParams({
       error: "Failed google oauth2",
     }).toString();
 
-    NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
+    return NextResponse.redirect(`${NEXT_PUBLIC_SITE_URL}/auth?${queryParams}`);
   }
 }
