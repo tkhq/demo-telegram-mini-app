@@ -18,8 +18,7 @@ type EmailAuthData = {
 export default function Auth() {
   const router = useRouter();
   const searchParms = useSearchParams();
-  const [errorText, setErrorText] = useState("");
-  // const [errorText, setErrorText] = useState(searchParms.get('error') || "");
+  const [errorText, setErrorText] = useState(searchParms.get('error') || "");
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
 

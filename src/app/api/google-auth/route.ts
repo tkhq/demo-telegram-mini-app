@@ -11,7 +11,6 @@ export async function POST(req: Request) {
 
     // To access parameters, use:
     const oidcToken = params.get('credential');
-    // const oidcToken = credential?.split(".")[1]
 
     if (!oidcToken) {
       // redirect to google oauth page
