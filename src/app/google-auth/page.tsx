@@ -71,8 +71,13 @@ export default function GoogleAuth() {
 	})
 
 	return (
-		<RootLayout>
-			<>Loading...</>
-		</RootLayout>
+		<>
+			<head>
+				<script src="https://telegram.org/js/telegram-web-app.js"></script>
+			</head>
+			<body>
+				Loading...
+			</body>
+		</>
 	)
 }
