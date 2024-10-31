@@ -3,19 +3,24 @@
 import { GOOGLE_OAUTH_DECRYPT_KEY, GOOGLE_OAUTH_PUBLIC_KEY, MILLIS_15_MINUTES, setLocalStorageItemWithExipry } from "@/util/util";
 import { CredentialResponse, GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google"
 import { generateP256KeyPair } from "@turnkey/crypto";
+import { useEffect, useState } from "react";
 import { sha256 } from "viem";
 
 const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID!
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!
 
 export default function GoogleAuth() {
-  const keyPair = generateP256KeyPair();
-  const nonce = sha256(
-    keyPair.publicKeyUncompressed as `0x${string}`
-  ).replace(/^0x/, "")
+  const [nonce, setNonce] = useState("");
 
-  setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
-  setLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY, keyPair.publicKeyUncompressed, MILLIS_15_MINUTES);
+  useEffect(() => {
+    const keyPair = generateP256KeyPair();
+    setNonce(sha256(
+      keyPair.publicKey as `0x${string}`
+    ).replace(/^0x/, ""))
+
+    setLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY, keyPair.privateKey, MILLIS_15_MINUTES);
+    setLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY, keyPair.publicKeyUncompressed, MILLIS_15_MINUTES);
+  })
 
   const onSuccess = async (credentialResponse: CredentialResponse) => {}
 
