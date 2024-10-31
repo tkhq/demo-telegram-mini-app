@@ -51,7 +51,6 @@ export default function GoogleAuth() {
       } catch (e) {
         console.log(e)
       }
-      
     }
   }
 
@@ -62,10 +61,6 @@ export default function GoogleAuth() {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      
-      {/* <button onClick={() => googleLogin() }className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-        Google
-      </button>  */}
       <GoogleLogin
         nonce={nonce}
         width={235}
@@ -74,7 +69,7 @@ export default function GoogleAuth() {
         useOneTap={false}
         auto_select={false}
         ux_mode="redirect"
-        login_uri={`${SITE_URL}`}
+        login_uri={`${SITE_URL}/google-auth`}
       />
     </GoogleOAuthProvider>
   )
