@@ -26,6 +26,7 @@ export default function Wallet() {
   const solConnection = connect();
   const [solBalance, setSolBalance] = useState(0);
   const [solAddress, setSolAddress] = useState("");
+  const [solPrice, setSolPrice] = useState(160.00);
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
   const [demoCoinBalance, setDemoCoinBalance] = useState(0);
   const [signer, setSigner] = useState<TurnkeySigner | null>(null);
@@ -76,6 +77,15 @@ export default function Wallet() {
         setSolBalance(solBal / LAMPORTS_PER_SOL);
       } catch (e) {
         setDisplaySolAddress("Failed Retrieving Demo Address");
+      }
+
+      try {
+        const getSolPrice = await axios.get("/api/getSolPrice");
+
+        if(getSolPrice.data.solPrice) {
+          setSolPrice(getSolPrice.data.solPrice)
+        }
+      } catch (e) {
       }
     }
 
@@ -146,7 +156,7 @@ export default function Wallet() {
 
   async function handleRedeem() {
     setDisableInputs(true);
-    setRedeemSuccessText("Sending...");
+    setRedeemSuccessText("Adding funds...");
     setRedeemErrorText("");
     setRedeemSuccessLink("");
     try {
@@ -225,25 +235,25 @@ export default function Wallet() {
         <h1 className="text-2xl font-bold flex-grow text-center">Demo Wallet</h1>
         <div className="w-10"></div> {/* This empty div balances the layout */}
       </div>
-      <Card className="mb-4">
+      <Card className="mb-2">
         <CardHeader>
-          <CardTitle className="text-center">Devnet Solana Wallet Address</CardTitle>
-          <div className="text-center cursor-pointer hover:text-gray-400">
-            <span onClick={copyExplorerLink}>🔗</span>
-          </div>
+          <CardTitle className="text-center">${(solPrice * solBalance).toFixed(2)} USD</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-center break-all cursor-pointer hover:text-gray-400" onClick={copyAddress}>{displaySolAddress}</p>
-          <p className="text-center font-semibold">Devnet Sol Balance: {solBalance} ◎</p>
+          <p className="text-center break-all cursor-pointer hover:text-gray-400 font-semibold" onClick={copyAddress}>{displaySolAddress}</p>
+          <p className="text-center ">{solBalance} SOL (Devnet)</p>
         </CardContent>
       </Card>
 
-      <Card className="mb-4">
+      <Card className="mb-2">
         <CardHeader>
-          <CardTitle className="text-lg text-center">Redeem Demo Coins</CardTitle>
-          <p className="text-center">100 demo coins = 0.001 devnet sol!</p>
+          <CardTitle className="text-lg text-center">Fund Wallet</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex items-center justify-center">
+            {/* <p className="text-xl font-semibold">Balance: {demoCoinBalance}</p> */}
+            <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold mb-2 px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Add funds</button>
+          </div>
           {redeemErrorText &&
             <p className="text-red-600 text-center">{redeemErrorText}</p>
           }
@@ -260,52 +270,49 @@ export default function Wallet() {
               }
             </div>
           }
-          <div className="flex items-center justify-between">
-            <p className="text-xl font-semibold">Balance: {demoCoinBalance}</p>
-            <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
-          </div>
         </CardContent>
       </Card>
-      <Card className="mb-4">
+      <Card className="mb-2">
         <CardHeader>
-          <CardTitle className="text-lg text-center">Send Devnet Solana</CardTitle>
+          <CardTitle className="text-lg text-center">Send</CardTitle>
         </CardHeader>
         <CardContent>
-          {sendErrorText &&
-            <p className="text-red-600 text-center">{sendErrorText}</p>
-          }
-          {sendSuccessText &&
-            <div className="text-center">
-              {sendSuccessLink ? 
-                <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
-                    setSendSuccessLink("")
-                    setSendSuccessText("")
-                  }}>{sendSuccessText}
-                </Link>
-              : 
-                <p className="text-center">{sendSuccessText}</p>
-              }
-            </div>
-          }
-          <div className="flex space-x-2">
+          <div className="mb-2">
+            {sendErrorText &&
+              <p className="text-red-600 text-center">{sendErrorText}</p>
+            }
+            {sendSuccessText &&
+              <div className="text-center">
+                {sendSuccessLink ? 
+                  <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
+                      setSendSuccessLink("")
+                      setSendSuccessText("")
+                    }}>{sendSuccessText}
+                  </Link>
+                : 
+                  <p className="text-center">{sendSuccessText}</p>
+                }
+              </div>
+            }
+          </div>
+          <div className="flex flex-col space-y-2">
             <Input
               type="text"
               placeholder="Recipient Address"
               {...sendSolFormRegister('recipient')}
             />
             <Input
-              type="number"
+              type="text"
               placeholder="Amount"
               {...sendSolFormRegister('amount')}
-              step=".1"
             />
-            <button onClick={sendSolFormSubmit(handleSend)} disabled={disableInputs} className="font-semibold px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
+            <button onClick={sendSolFormSubmit(handleSend)} disabled={disableInputs} className="font-semibold h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
           </div>
         </CardContent>
       </Card>
       <button onClick={handleLogout} disabled={disableInputs} className="w-full">
-        <Card className="bg-red-400 mb-4 hover:bg-red-500">
-            <CardTitle className="text-lg text-center py-2">Logout</CardTitle>
+        <Card className="bg-foreground mb-4">
+            <CardTitle className="text-lg text-center text-background py-2">Logout</CardTitle>
         </Card>
       </button>
     </div>

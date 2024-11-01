@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     // ToDo: reduce demo balance
 
     // construct transaction
-    const amount = 0.001 * LAMPORTS_PER_SOL;
+    const amount = 0.01 * LAMPORTS_PER_SOL;
     const transaction = await transfer(connection, amount, PARENT_SOLANA_ADDRESS!, getAddressResponse.data.address);
     await signer.addSignature(transaction, PARENT_SOLANA_ADDRESS!);
 
