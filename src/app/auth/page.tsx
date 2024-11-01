@@ -19,24 +19,13 @@ type EmailAuthData = {
 export default function Auth() {
   const router = useRouter();
   const searchParms = useSearchParams();
-  const [showGoogleOauth, setShowGoogleOauth] = useState(false)
   const [errorText, setErrorText] = useState(searchParms.get('error') || "");
+  const [continueButtonDisabled, setContinueButtonDisabled] = useState(false)
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
 
-  useEffect(() => {
-    async function fetchGoogleOauthStatus() {
-      const googleOauthStatus = await fetch("https://accounts.google.com/gsi/client")
-
-      if (googleOauthStatus.status == 200) {
-        setShowGoogleOauth(true)
-      }
-    }
-
-    fetchGoogleOauthStatus();
-  }, [])
-
   async function handleEmailLogin (data: EmailAuthData) {
+    setContinueButtonDisabled(true)
     const keyPair = generateP256KeyPair();
 
     try {
@@ -58,6 +47,7 @@ export default function Auth() {
       }
     } catch (e) {
       setErrorText("Failed initiating email authentication");
+      setContinueButtonDisabled(false)
     }
   }
 
@@ -78,32 +68,24 @@ export default function Auth() {
                 placeholder="Enter your email"
                 {...emailFormRegister('email')}
               />
-              <button onClick={emailFormSubmit(handleEmailLogin)} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
                 Continue with Email
               </button>
             </form>
           </div>
-          {showGoogleOauth ?  
-            <>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
-              <div>
-                <GoogleAuth />
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
-            </>
-            :
-            <button className="w-full px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                To enable Google Oauth try on a desktop platform
-            </button>
-          }
+            </div>
+            <div>
+              <GoogleAuth />
+            </div>
         </CardContent>
       </Card>
     </div>

@@ -16,30 +16,35 @@ type EmailAuthCodeData = {
 export default function EmailAuth() {
   const router = useRouter()
   const [errorText, setErrorText] = useState("");
+  const [continueButtonDisabled, setContinueButtonDisabled] = useState(false)
+  const [returnLoginButtonDisabled, setReturnLoginButtonDisabled] = useState(false)
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organizationId');
   const { register: emailAuthCodeFormRegister, handleSubmit: emailAuthCodeFormSubmit } =
     useForm<EmailAuthCodeData>();
 
   const handleEmailAuth = async (data: EmailAuthCodeData) => {
+    setContinueButtonDisabled(true)
+    setReturnLoginButtonDisabled(true);
     // Handle authentication code verification logic here
     if (!data.authCode) {
-      console.log("Here")
       setErrorText("Failed decrypting email auth code");
+      setContinueButtonDisabled(false);
+      setReturnLoginButtonDisabled(false);
     }
 
     let decryptedData;
     try {
       const embeddedKey = getLocalStorageItemWithExipry(TURNKEY_EMBEDDED_KEY);
-      console.log("Here4")
       decryptedData = decryptCredentialBundle(
         data.authCode,
         embeddedKey
       );
 
       if (!decryptedData) {
-        console.log("Here2")
         setErrorText("Failed decrypting email auth code");
+        setContinueButtonDisabled(false);
+        setReturnLoginButtonDisabled(false);
       }
   
       // This stores the api credentials obtained from email auth into telegram cloud storage and those credentials can be used in other places in your application
@@ -50,12 +55,14 @@ export default function EmailAuth() {
       
       router.push(`/play?${searchParams}`);
     } catch (e) {
-      console.log(e)
       setErrorText("Failed decrypting email auth code");
+      setContinueButtonDisabled(false);
+      setReturnLoginButtonDisabled(false);
     }
   }
 
   const handleReturnToLogin = () => {
+    setReturnLoginButtonDisabled(true);
     router.push("/auth")
   }
 
@@ -79,7 +86,7 @@ export default function EmailAuth() {
                 placeholder="Paste here"
                 {...emailAuthCodeFormRegister('authCode')}
               />
-              <button onClick={emailAuthCodeFormSubmit(handleEmailAuth)} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={emailAuthCodeFormSubmit(handleEmailAuth)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
                 Continue
               </button>
             </form>
@@ -94,7 +101,7 @@ export default function EmailAuth() {
               </span>
             </div>
           </div>
-          <button onClick={handleReturnToLogin} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
+          <button onClick={handleReturnToLogin} disabled={returnLoginButtonDisabled} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
             Return to Login
           </button>
         </CardContent>

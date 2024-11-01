@@ -31,8 +31,13 @@ export default function Wallet() {
   const [signer, setSigner] = useState<TurnkeySigner | null>(null);
   const [sendErrorText, setSendErrorText] = useState("");
   const [sendSuccessLink, setSendSuccessLink] = useState("");
+  const [sendSuccessText, setSendSuccessText] = useState("");
   const [redeemErrorText, setRedeemErrorText] = useState("");
   const [redeemSuccessLink, setRedeemSuccessLink] = useState("");
+  const [redeemSuccessText, setRedeemSuccessText] = useState("");
+  const [disableInputs, setDisableInputs] = useState(false);
+  const [updateBalance, setUpdateBalance] = useState(false);
+
 
   const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
     useForm<SendSolData>();
@@ -75,9 +80,10 @@ export default function Wallet() {
     }
 
     init();
-  }, [])
+  }, [updateBalance])
 
   function handleBack() {
+    setDisableInputs(true);
     const queryParams = new URLSearchParams({
       organizationId: organizationId!,
     }).toString();
@@ -85,9 +91,15 @@ export default function Wallet() {
   }
 
   async function handleSend(data: SendSolData) {
+    setDisableInputs(true);
+    setSendErrorText("");
+    setSendSuccessLink("");
+    setSendSuccessText("Sending...");
     if (!data.amount || !data.recipient) {
       setSendErrorText("Please enter both an amount and recipient");
       setSendSuccessLink("");
+      setSendSuccessText("");
+      setDisableInputs(false);
       return;
     }
 
@@ -96,19 +108,37 @@ export default function Wallet() {
     if (amount >= solBalance * LAMPORTS_PER_SOL) {
       setSendErrorText("Insufficient balance");
       setSendSuccessLink("");
+      setSendSuccessText("");
+      setDisableInputs(false);
       return;
     }
 
-    const transaction = await transfer(solConnection, amount, solAddress, data.recipient);
+    try {
+      const transaction = await transfer(solConnection, amount, solAddress, data.recipient);
 
-    await signer!.addSignature(transaction, solAddress);
-    // broadcast
-    const transactionHash = await broadcast(solConnection, transaction);
-    setSendErrorText("");
-    setSendSuccessLink(`https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
+      await signer!.addSignature(transaction, solAddress);
+      // broadcast
+      const transactionHash = await broadcast(solConnection, transaction);
+      setSendErrorText("");
+      setSendSuccessLink(`https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
+      setSendSuccessText("Success!! Click to navigate to explorer");
+      setUpdateBalance(!updateBalance);
+      setDisableInputs(false);
+      return;
+    } catch (e) {
+    }
+
+    setSendErrorText("Error connecting to network or adding signature");
+    setSendSuccessLink("");
+    setSendSuccessText("");
+    setDisableInputs(false);
   }
 
   async function handleRedeem() {
+    setDisableInputs(true);
+    setRedeemSuccessText("Sending...");
+    setRedeemErrorText("");
+    setRedeemSuccessLink("");
     try {
       const queryParams = new URLSearchParams({
         organizationId: organizationId!,
@@ -121,10 +151,15 @@ export default function Wallet() {
 
       setRedeemErrorText("");
       setRedeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
+      setRedeemSuccessText("Success!! Click to navigate to explorer");
+      setDisableInputs(false);
+      setUpdateBalance(!updateBalance);
       return;
     } catch (e) {
       setRedeemErrorText("Failed redeeming TurntCoins");
       setRedeemSuccessLink("");
+      setRedeemSuccessText("");
+      setDisableInputs(false);
     }
   }
 
@@ -166,13 +201,14 @@ export default function Wallet() {
   }
 
   function handleLogout() {
+    setDisableInputs(true);
     router.push("/auth");
   }
 
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="flex items-center justify-between mb-4">
-        <button onClick={handleBack}>
+        <button onClick={handleBack} disabled={disableInputs}>
           <ArrowLeft className="h-6 w-6" />
         </button>
         <h1 className="text-2xl font-bold flex-grow text-center">TurntCoin Wallet</h1>
@@ -200,14 +236,22 @@ export default function Wallet() {
           {redeemErrorText &&
             <p className="text-red-600 text-center">{redeemErrorText}</p>
           }
-          {redeemSuccessLink &&
+          {redeemSuccessText &&
             <div className="text-center">
-              <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setRedeemSuccessLink("")}}>Succes!! Click to navigate to explorer in another tab</Link>
+              {redeemSuccessLink ? 
+                <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
+                    setRedeemSuccessLink("")
+                    setRedeemSuccessText("")
+                  }}>{redeemSuccessText}
+                </Link>
+              : 
+                <p className="text-center">{redeemSuccessText}</p>
+              }
             </div>
           }
           <div className="flex items-center justify-between">
             <p className="text-xl font-semibold">Balance: {turntCoinBalance} 🔑</p>
-            <button onClick={handleRedeem} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
+            <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
           </div>
         </CardContent>
       </Card>
@@ -219,9 +263,17 @@ export default function Wallet() {
           {sendErrorText &&
             <p className="text-red-600 text-center">{sendErrorText}</p>
           }
-          {sendSuccessLink &&
+          {sendSuccessText &&
             <div className="text-center">
-              <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {setSendSuccessLink("")}}>Click to navigate to explorer in another tab</Link>
+              {sendSuccessLink ? 
+                <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
+                    setSendSuccessLink("")
+                    setSendSuccessText("")
+                  }}>{sendSuccessText}
+                </Link>
+              : 
+                <p className="text-center">{sendSuccessText}</p>
+              }
             </div>
           }
           <div className="flex space-x-2">
@@ -236,11 +288,11 @@ export default function Wallet() {
               {...sendSolFormRegister('amount')}
               step=".1"
             />
-            <button onClick={sendSolFormSubmit(handleSend)} className="font-semibold px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
+            <button onClick={sendSolFormSubmit(handleSend)} disabled={disableInputs} className="font-semibold px-4 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
           </div>
         </CardContent>
       </Card>
-      <button onClick={handleLogout} className="w-full">
+      <button onClick={handleLogout} disabled={disableInputs} className="w-full">
         <Card className="bg-red-400 mb-4 hover:bg-red-500">
             <CardTitle className="text-lg text-center py-2">Logout</CardTitle>
         </Card>
