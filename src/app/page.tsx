@@ -9,10 +9,12 @@ export default function Home() {
   const [telegramContext, setTelegramContext] = useState(true);
   
   useEffect(() => {
-    if(!window.Telegram?.WebApp?.WebAppUser) {
+    try{
+      window.Telegram?.WebApp.CloudStorage.getItem("Test")
+    } catch (e) {
       setTelegramContext(false)
     }
-  }, [])
+  }, [window.Telegram?.WebApp])
 
   return (
     telegramContext ? 
