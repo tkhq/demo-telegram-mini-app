@@ -136,12 +136,12 @@ export default function Wallet() {
       setDisableInputs(false);
       return;
     } catch (e) {
+      setSendErrorText("Error connecting to network or adding signature");
+      setSendSuccessLink("");
+      setSendSuccessText("");
+      setDisableInputs(false);
+      return;
     }
-
-    setSendErrorText("Error connecting to network or adding signature");
-    setSendSuccessLink("");
-    setSendSuccessText("");
-    setDisableInputs(false);
   }
 
   async function handleRedeem() {
@@ -170,6 +170,7 @@ export default function Wallet() {
       setRedeemSuccessLink("");
       setRedeemSuccessText("");
       setDisableInputs(false);
+      return;
     }
   }
 

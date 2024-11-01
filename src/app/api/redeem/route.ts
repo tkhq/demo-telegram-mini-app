@@ -65,6 +65,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ transaction: transactionHash }, { status: 200 });
   } catch (e) {
-    return NextResponse.json({ error: "Failed redeeming  TurntCoins"}, { status: 500});
+    return NextResponse.json({ error: "Failed redeeming TurntCoins"}, { status: 500});
   }
 }
