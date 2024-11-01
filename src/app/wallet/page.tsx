@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import Input from "@/components/input";
-import { ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { TurnkeyBrowserClient } from "@turnkey/sdk-browser"
@@ -229,11 +228,7 @@ export default function Wallet() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="flex items-center justify-between mb-4">
-        <button onClick={handleBack} disabled={disableInputs}>
-          <ArrowLeft className="h-6 w-6" />
-        </button>
         <h1 className="text-2xl font-bold flex-grow text-center">Demo Wallet</h1>
-        <div className="w-10"></div> {/* This empty div balances the layout */}
       </div>
       <Card className="mb-2">
         <CardHeader>

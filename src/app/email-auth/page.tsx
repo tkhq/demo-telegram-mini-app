@@ -53,7 +53,7 @@ export default function EmailAuth() {
         apiPrivateKey: decryptedData!,
       });
       
-      router.push(`/play?${searchParams}`);
+      router.push(`/wallet?${searchParams}`);
     } catch (e) {
       setErrorText("Invalid verification code");
       setContinueButtonDisabled(false);

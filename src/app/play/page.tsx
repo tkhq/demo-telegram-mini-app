@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Wallet as LucideWallet } from "lucide-react";
+import { ArrowLeft, Wallet as LucideWallet } from "lucide-react";
 
 export default function Play() {
   const router = useRouter()
@@ -25,9 +25,19 @@ export default function Play() {
     router.push(`/wallet?${queryParams}`)
   }
 
+  function handleBack() {
+    const queryParams = new URLSearchParams({
+      organizationId: organizationId!,
+    }).toString();
+    router.push(`/wallet?${queryParams}`);
+  }
+
   return (
     <div className="min-h-screen bg-forground text-white flex flex-col items-center justify-center p-4">
-        <h1 className="text-3xl text-foreground font-bold mb-4 text-center">Welcome</h1>
+      <button onClick={handleBack}>
+        <ArrowLeft className="h-6 w-6" />
+      </button>
+        <h1 className="text-3xl text-foreground font-bold mb-4 text-center">Turnkey</h1>
         <div className="text-lg text-foreground text-center mb-8">
             Click to rotate the Turnkey keyhole to get demo coins redeemable for devnet Solana!
         </div>
