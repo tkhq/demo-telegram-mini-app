@@ -5,9 +5,6 @@ import DisplayTelegramMessage from "./display-telegram/page";
 
 export default function Home() {
   return (
-    typeof window !== "undefined" && window?.Telegram?.WebApp?.version == '6.0' ? 
-      <DisplayTelegramMessage />
-    : 
       <Auth/> 
   )
 }
