@@ -28,7 +28,7 @@ export default function EmailAuth() {
     setReturnLoginButtonDisabled(true);
     // Handle authentication code verification logic here
     if (!data.authCode) {
-      setErrorText("Failed decrypting email auth code");
+      setErrorText("Invalid verification code");
       setContinueButtonDisabled(false);
       setReturnLoginButtonDisabled(false);
     }
@@ -42,7 +42,7 @@ export default function EmailAuth() {
       );
 
       if (!decryptedData) {
-        setErrorText("Failed decrypting email auth code");
+        setErrorText("Invalid verification code");
         setContinueButtonDisabled(false);
         setReturnLoginButtonDisabled(false);
       }
@@ -55,7 +55,7 @@ export default function EmailAuth() {
       
       router.push(`/play?${searchParams}`);
     } catch (e) {
-      setErrorText("Failed decrypting email auth code");
+      setErrorText("Invalid verification code");
       setContinueButtonDisabled(false);
       setReturnLoginButtonDisabled(false);
     }
@@ -70,9 +70,9 @@ export default function EmailAuth() {
     <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">Turn Demo App</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Turnkey</CardTitle>
           <p className="text-center text-sm text-muted-foreground">
-            Paste your email authentication code below
+            Confirm your email
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -83,7 +83,7 @@ export default function EmailAuth() {
               }
               <Input
                 type="text"
-                placeholder="Paste here"
+                placeholder="Enter verification code"
                 {...emailAuthCodeFormRegister('authCode')}
               />
               <button onClick={emailAuthCodeFormSubmit(handleEmailAuth)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
@@ -102,7 +102,7 @@ export default function EmailAuth() {
             </div>
           </div>
           <button onClick={handleReturnToLogin} disabled={returnLoginButtonDisabled} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
-            Return to Login
+            Return to login
           </button>
         </CardContent>
       </Card>

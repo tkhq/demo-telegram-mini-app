@@ -10,7 +10,6 @@ import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { useState } from "react";
-import { useEffect } from "react";
 
 type EmailAuthData = {
   email: Email
@@ -55,7 +54,10 @@ export default function Auth() {
     <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Turnkey Demo App</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Turnkey</CardTitle>
+          <p className="text-center text-sm text-muted-foreground">
+            Log in or Sign up
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -69,7 +71,7 @@ export default function Auth() {
                 {...emailFormRegister('email')}
               />
               <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                Continue with Email
+                Continue with email
               </button>
             </form>
           </div>
@@ -79,7 +81,7 @@ export default function Auth() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  Or
                 </span>
               </div>
             </div>
