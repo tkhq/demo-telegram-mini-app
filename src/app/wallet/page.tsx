@@ -113,8 +113,18 @@ export default function Wallet() {
       return;
     }
 
+    let transaction;
     try {
-      const transaction = await transfer(solConnection, amount, solAddress, data.recipient);
+      transaction = await transfer(solConnection, amount, solAddress, data.recipient);
+    } catch (e) {
+      setSendErrorText("Invalid amount or recipient");
+      setSendSuccessLink("");
+      setSendSuccessText("");
+      setDisableInputs(false);
+      return
+    }
+
+    try {
 
       await signer!.addSignature(transaction, solAddress);
       // broadcast
