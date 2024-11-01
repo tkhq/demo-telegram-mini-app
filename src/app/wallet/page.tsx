@@ -175,7 +175,7 @@ export default function Wallet() {
       setUpdateBalance(!updateBalance);
       return;
     } catch (e) {
-      setRedeemErrorText("Failed redeeming Demo Coins");
+      setRedeemErrorText("Failed adding funds");
       setRedeemSuccessLink("");
       setRedeemSuccessText("");
       setDisableInputs(false);
