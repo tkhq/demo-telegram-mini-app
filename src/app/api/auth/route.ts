@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import { ApiKeyStamper, DEFAULT_SOLANA_ACCOUNTS, TurnkeyServerClient } from "@turnkey/sdk-server";
 import { Email, OauthProviderParams } from "@/types/types";
-import { decodeJwt, TURNTCOIN_WALLET_NAME } from '@/util/util';
+import { decodeJwt, MILLIS_90_MINUTES, TURNTCOIN_WALLET_NAME } from '@/util/util';
 
 const PARENT_ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
@@ -59,7 +59,8 @@ export async function POST(req: Request) {
           const emailAuthResponse = await client.emailAuth({
             organizationId: subOrg.subOrganizationId,
             email: email,
-            targetPublicKey
+            targetPublicKey,
+            expirationSeconds: MILLIS_90_MINUTES.toString()
           });
         
           // validate response from email auth
@@ -80,7 +81,8 @@ export async function POST(req: Request) {
         const emailAuthResponse = await client.emailAuth({
           organizationId: findUserResponse.organizationIds[0],
           email: email,
-          targetPublicKey
+          targetPublicKey,
+          expirationSeconds: MILLIS_90_MINUTES.toString()
         });
 
         // validate response from email auth
@@ -136,7 +138,8 @@ export async function POST(req: Request) {
           const oauthResponse = await client.oauth({
             organizationId: subOrg.subOrganizationId,
             targetPublicKey,
-            oidcToken
+            oidcToken,
+            expirationSeconds: MILLIS_90_MINUTES.toString()
           });
         
           // validate response from oauth
@@ -157,7 +160,8 @@ export async function POST(req: Request) {
           const oauthResponse = await client.oauth({
             organizationId: findUserResponse.organizationIds[0],
             targetPublicKey,
-            oidcToken
+            oidcToken,
+            expirationSeconds: MILLIS_90_MINUTES.toString()
           });
         
           // validate response from oauth
