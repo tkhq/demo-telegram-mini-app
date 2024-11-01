@@ -24,7 +24,7 @@ export default function Auth() {
     useForm<EmailAuthData>();
 
   async function handleEmailLogin (data: EmailAuthData) {
-    setContinueButtonDisabled(true)
+    setContinueButtonDisabled(true);
     const keyPair = generateP256KeyPair();
 
     try {

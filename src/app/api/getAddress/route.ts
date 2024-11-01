@@ -27,7 +27,7 @@ export async function GET(req: Request) {
 
         // confirm we received the organization ID parameter
         if(!organizationId) {
-            return NextResponse.json({ error: "Didnt receive organizationID parameter"}, { status: 400});
+            return NextResponse.json({ error: "Didnt receive organizationId parameter" }, { status: 400 });
         }
 
         // get users wallets
