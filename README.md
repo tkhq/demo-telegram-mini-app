@@ -1,4 +1,4 @@
-# Turntkey Demo Telegram Mini App
+# Turnkey Demo Telegram Mini App
 
 This example app contains an example Telegram mini-app built on Turnkey.
 
