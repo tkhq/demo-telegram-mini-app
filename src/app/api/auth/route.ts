@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import { ApiKeyStamper, DEFAULT_SOLANA_ACCOUNTS, TurnkeyServerClient } from "@turnkey/sdk-server";
 import { Email, OauthProviderParams } from "@/types/types";
-import { decodeJwt, MILLIS_90_MINUTES, TURNTCOIN_WALLET_NAME } from '@/util/util';
+import { decodeJwt, MILLIS_90_MINUTES, DEMO_WALLET_NAME } from '@/util/util';
 
 const PARENT_ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
@@ -206,8 +206,8 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
     throw new Error("No email for user provided")
   }
 
-  const subOrganizationName = `TurntCoin Sub Org - ${userEmail}`
-  const userName = userEmail ? userEmail.split("@")?.[0] || userEmail : "TurntCoin User"
+  const subOrganizationName = `Turnkey Demo Sub Org - ${userEmail}`
+  const userName = userEmail ? userEmail.split("@")?.[0] || userEmail : "Turnkey User"
 
   const subOrg = await client.createSubOrganization({
     organizationId: PARENT_ORG_ID,
@@ -223,7 +223,7 @@ async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
     ],
     rootQuorumThreshold: 1,
     wallet: {
-      walletName: TURNTCOIN_WALLET_NAME,
+      walletName: DEMO_WALLET_NAME,
       accounts: DEFAULT_SOLANA_ACCOUNTS,
     }
   });

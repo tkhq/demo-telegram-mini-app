@@ -5,7 +5,7 @@ import { decode, JwtPayload } from "jsonwebtoken";
 export const TURNKEY_EMBEDDED_KEY = "TURNKEY_EMBDEDDED_KEY";
 export const MILLIS_15_MINUTES = 900000;
 export const MILLIS_90_MINUTES = 5400000;
-export const TURNTCOIN_WALLET_NAME = "TurntCoin Wallet"
+export const DEMO_WALLET_NAME = "Turnkey Demo Wallet"
 export const GOOGLE_OAUTH_DECRYPT_KEY = "GOOGLE_OAUTH_DECRYPT_KEY";
 export const GOOGLE_OAUTH_PUBLIC_KEY = "GOOGLE_OAUTH_PUBLIC_KEY";
 

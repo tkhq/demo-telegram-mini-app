@@ -1,6 +1,6 @@
 'use server'
 
-import { TURNTCOIN_WALLET_NAME } from '@/util/util';
+import { DEMO_WALLET_NAME } from '@/util/util';
 import { ApiKeyStamper, TurnkeyServerClient } from '@turnkey/sdk-server';
 import { NextResponse } from 'next/server';
 
@@ -35,37 +35,37 @@ export async function GET(req: Request) {
             organizationId: organizationId,
         });
 
-        // find the wallet id of the TurntCoin wallet
-        let turntCoinWalletId;
+        // find the wallet id of the  wallet
+        let demoWalletId;
         getWalletResponse.wallets.forEach((wallet) => {
-            if (wallet.walletName === TURNTCOIN_WALLET_NAME) {
-                turntCoinWalletId = wallet.walletId;
+            if (wallet.walletName === DEMO_WALLET_NAME) {
+                demoWalletId = wallet.walletId;
             }
         })
 
-        if (!turntCoinWalletId) {
-            return NextResponse.json({ error: "User does not have a TurntCoin wallet"}, { status: 400});
+        if (!demoWalletId) {
+            return NextResponse.json({ error: "User does not have a Demo wallet"}, { status: 400});
         }
 
         // get the accounts in the wallet
         const getAccountsResponse = await client.getWalletAccounts({
             organizationId: organizationId,
-            walletId: turntCoinWalletId
+            walletId: demoWalletId
         });
 
-        let turntCoinWalletAddress;
+        let demoWalletAddress;
         getAccountsResponse.accounts.forEach((account) => {
             if (account.addressFormat  === 'ADDRESS_FORMAT_SOLANA') {
-                turntCoinWalletAddress = account.address;
+                demoWalletAddress = account.address;
             }
         })
 
-        if(!turntCoinWalletAddress) {
-            return NextResponse.json({ error: "Users TurntCoin wallet does not have a valid account"}, { status: 400});
+        if(!demoWalletAddress) {
+            return NextResponse.json({ error: "Users Demo wallet does not have a valid account"}, { status: 400});
         }
 
-        return NextResponse.json({ address: turntCoinWalletAddress }, { status: 200 })
+        return NextResponse.json({ address: demoWalletAddress }, { status: 200 })
     } catch (e) {
-        return NextResponse.json({ error: "Failed retrieving TurntCoin wallet"}, { status: 500});
+        return NextResponse.json({ error: "Failed retrieving demo wallet"}, { status: 500});
     }
 }

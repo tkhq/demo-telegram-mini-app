@@ -27,7 +27,7 @@ export default function Wallet() {
   const [solBalance, setSolBalance] = useState(0);
   const [solAddress, setSolAddress] = useState("");
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
-  const [turntCoinBalance, setTurnCoinBalance] = useState(0);
+  const [demoCoinBalance, setDemoCoinBalance] = useState(0);
   const [signer, setSigner] = useState<TurnkeySigner | null>(null);
   const [sendErrorText, setSendErrorText] = useState("");
   const [sendSuccessLink, setSendSuccessLink] = useState("");
@@ -65,7 +65,7 @@ export default function Wallet() {
         });
 
         if(!getAddressResponse.data.address) {
-          setDisplaySolAddress("Failed Retrieving TurntCoin Address")
+          setDisplaySolAddress("Failed Retrieving Demo Address")
           return;
         }
 
@@ -75,7 +75,7 @@ export default function Wallet() {
         const solBal = await balance(solConnection, getAddressResponse.data.address);
         setSolBalance(solBal / LAMPORTS_PER_SOL);
       } catch (e) {
-        setDisplaySolAddress("Failed Retrieving TurntCoin Address");
+        setDisplaySolAddress("Failed Retrieving Demo Address");
       }
     }
 
@@ -166,7 +166,7 @@ export default function Wallet() {
       setUpdateBalance(!updateBalance);
       return;
     } catch (e) {
-      setRedeemErrorText("Failed redeeming TurntCoins");
+      setRedeemErrorText("Failed redeeming Demo Coins");
       setRedeemSuccessLink("");
       setRedeemSuccessText("");
       setDisableInputs(false);
@@ -222,7 +222,7 @@ export default function Wallet() {
         <button onClick={handleBack} disabled={disableInputs}>
           <ArrowLeft className="h-6 w-6" />
         </button>
-        <h1 className="text-2xl font-bold flex-grow text-center">TurntCoin Wallet</h1>
+        <h1 className="text-2xl font-bold flex-grow text-center">Demo Wallet</h1>
         <div className="w-10"></div> {/* This empty div balances the layout */}
       </div>
       <Card className="mb-4">
@@ -240,7 +240,7 @@ export default function Wallet() {
 
       <Card className="mb-4">
         <CardHeader>
-          <CardTitle className="text-lg text-center">Redeem TurntCoins</CardTitle>
+          <CardTitle className="text-lg text-center">Redeem Demo Coins</CardTitle>
           <p className="text-center">100🔑 = 0.001 devnet sol!</p>
         </CardHeader>
         <CardContent>
@@ -261,7 +261,7 @@ export default function Wallet() {
             </div>
           }
           <div className="flex items-center justify-between">
-            <p className="text-xl font-semibold">Balance: {turntCoinBalance} 🔑</p>
+            <p className="text-xl font-semibold">Balance: {demoCoinBalance} 🔑</p>
             <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
           </div>
         </CardContent>

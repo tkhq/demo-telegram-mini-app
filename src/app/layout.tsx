@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TurntCoin Telegram Mini App",
-  description: "TurntCoin Telegram Mini App",
+  title: "Turnkey demo Telegram Mini App",
+  description: "Turnkey demo Telegram Mini App",
 };
 
 export default function RootLayout({

@@ -70,7 +70,7 @@ export default function EmailAuth() {
     <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">TurntCoin 🔑</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Turn Demo App</CardTitle>
           <p className="text-center text-sm text-muted-foreground">
             Paste your email authentication code below
           </p>

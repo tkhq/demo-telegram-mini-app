@@ -12,7 +12,7 @@ export default function DisplayTelegramMessage() {
         </CardHeader>
         <CardContent>
           <p className="text-center text-sm text-muted-foreground">
-            This example telegram mini app powered by Turnkey can be found at this bot link <Link href="https://t.me/TurntCoinBot" className="font-semibold underliner">@TurntCoinBot</Link>, try messaging it!
+            This example telegram mini app powered by Turnkey can be found at this bot link <Link href="https://t.me/TurnkeyDemoAppBot" className="font-semibold underliner">@TurnkeyDemoAppBot</Link>, try messaging it!
           </p>
         </CardContent>
       </Card>

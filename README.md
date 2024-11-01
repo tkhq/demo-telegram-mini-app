@@ -1,6 +1,4 @@
-# TurntCoin 🔑 Demo Telegram Mini App
-
-## ***NOTE: TurntCoins nor devnet Solana have any real value nor will in the future
+# Turntkey Demo Telegram Mini App
 
 This example app contains an example Telegram mini-app built on Turnkey.
 

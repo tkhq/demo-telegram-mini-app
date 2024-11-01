@@ -55,7 +55,7 @@ export default function Auth() {
     <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-background">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">TurntCoin 🔑</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Turnkey Demo App</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

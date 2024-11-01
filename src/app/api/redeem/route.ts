@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       organizationId: organizationId!,
     }).toString();
 
-    // get user TurntCoin wallet address
+    // get user demo wallet address
     const getAddressResponse = await axios.get(`${PUBLIC_SITE_URL}/api/getAddress?${queryParams}`, { 
       params: {
         organizationId: organizationId
@@ -49,11 +49,11 @@ export async function POST(req: Request) {
     });
 
     if(!getAddressResponse.data.address) {
-      return NextResponse.json({ error: "Failed to get TurntCoin address"}, { status: 400});
+      return NextResponse.json({ error: "Failed to get demo address"}, { status: 400});
     }
 
-    // ToDo: check turntcoin balance
-    // ToDo: reduce turntcoin balance
+    // ToDo: check demo balance
+    // ToDo: reduce demo balance
 
     // construct transaction
     const amount = 0.001 * LAMPORTS_PER_SOL;
@@ -65,6 +65,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ transaction: transactionHash }, { status: 200 });
   } catch (e) {
-    return NextResponse.json({ error: "Failed redeeming TurntCoins"}, { status: 500});
+    return NextResponse.json({ error: "Failed redeeming denet sol"}, { status: 500});
   }
 }
