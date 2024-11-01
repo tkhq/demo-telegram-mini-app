@@ -140,7 +140,7 @@ export default function Wallet() {
       const transactionHash = await broadcast(solConnection, transaction);
       setSendErrorText("");
       setSendSuccessLink(`https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
-      setSendSuccessText("Success!! Click to navigate to explorer");
+      setSendSuccessText("Success! Funds sent");
       setUpdateBalance(!updateBalance);
       setDisableInputs(false);
       return;
@@ -170,7 +170,7 @@ export default function Wallet() {
 
       setRedeemErrorText("");
       setRedeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
-      setRedeemSuccessText("Success!! Click to navigate to explorer");
+      setRedeemSuccessText("Success! Funds Added");
       setDisableInputs(false);
       setUpdateBalance(!updateBalance);
       return;
