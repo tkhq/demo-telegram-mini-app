@@ -241,7 +241,7 @@ export default function Wallet() {
       <Card className="mb-4">
         <CardHeader>
           <CardTitle className="text-lg text-center">Redeem Demo Coins</CardTitle>
-          <p className="text-center">100🔑 = 0.001 devnet sol!</p>
+          <p className="text-center">100 demo coins = 0.001 devnet sol!</p>
         </CardHeader>
         <CardContent>
           {redeemErrorText &&
@@ -261,7 +261,7 @@ export default function Wallet() {
             </div>
           }
           <div className="flex items-center justify-between">
-            <p className="text-xl font-semibold">Balance: {demoCoinBalance} 🔑</p>
+            <p className="text-xl font-semibold">Balance: {demoCoinBalance}</p>
             <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Redeem</button>
           </div>
         </CardContent>

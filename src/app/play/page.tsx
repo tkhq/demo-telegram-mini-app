@@ -45,7 +45,6 @@ export default function Play() {
     <div className="text-xl font-semibold text-foreground flex cursor-pointer gap-4" onClick={navigateWallet}>
       <LucideWallet/> 
       <div>{demoCoinBalance}</div>
-      <div>🔑</div>
     </div>
   </div>
   )
