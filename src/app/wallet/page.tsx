@@ -85,15 +85,15 @@ export default function Wallet() {
 
       // if the signer is undefined then create a new sub organization for the user
       if (!turnkeySigner) {
-        // create the api key pair to be stored for the user
-        const keyPair = generateP256KeyPair();
-        
-        const telegramStamper = await TelegramCloudStorageStamper.create({
-          apiPublicKey: keyPair.publicKey,
-          apiPrivateKey: keyPair.privateKey
-        });
-
         try {
+          // create the api key pair to be stored for the user
+          const keyPair = generateP256KeyPair();
+          
+          const telegramStamper = await TelegramCloudStorageStamper.create({
+            apiPublicKey: keyPair.publicKey,
+            apiPrivateKey: keyPair.privateKey
+          });
+
           const createSubOrgResponse = await axios.post("/api/auth", { 
             type: 'telegram',
             publicKey: keyPair.publicKey,
