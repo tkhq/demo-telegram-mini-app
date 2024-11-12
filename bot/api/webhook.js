@@ -12,7 +12,7 @@ module.exports = async (request, response) => {
         // Create our new bot handler with the token
         // that the Botfather gave us
         // Use an environment variable so we don't expose it in our code
-        const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+        const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN_AUTH);
 
         console.log(process.env.PUBLIC_SITE_URL)
 
