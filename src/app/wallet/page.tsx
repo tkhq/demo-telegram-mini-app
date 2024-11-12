@@ -12,8 +12,6 @@ import { connect, balance, transfer, broadcast } from "@/web3/web3"
 import { useForm } from "react-hook-form";
 import TelegramCloudStorageStamper, { TTelegramCloudStorageStamperConfig } from "@turnkey/telegram-cloud-storage-stamper";
 import Link from "next/link";
-import { LucideCopy } from "lucide-react";
-import { generateP256KeyPair } from "@turnkey/crypto";
 
 type SendSolData = {
   amount: number;
@@ -22,9 +20,8 @@ type SendSolData = {
 
 export default function Wallet() {
   const router = useRouter();
-  // const searchParams = useSearchParams();
-  // const organizationId = searchParams.get('organizationId');
-  const [organizationId, setOrganizationId] = useState("");
+  const searchParams = useSearchParams();
+  const organizationId = searchParams.get('organizationId');
   const solConnection = connect();
   const [solBalance, setSolBalance] = useState(0);
   const [solAddress, setSolAddress] = useState("");
@@ -46,96 +43,21 @@ export default function Wallet() {
     useForm<SendSolData>();
 
   useEffect(() => {
-    async function loadCredentials() {
-      let turnkeySigner;
+    async function init() {
       try {
-        // Check if there are credentials stored in Telegram Cloud Storage
+        // This uses credentials previously stored in Telegram Cloud Storage
         const telegramStamper = await TelegramCloudStorageStamper.create();
-        let client = new TurnkeyBrowserClient({
+        const client = new TurnkeyBrowserClient({
           stamper: telegramStamper,
-          organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+          organizationId: organizationId!,
           apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
         });
+        const turnkeySigner = new TurnkeySigner({
+          organizationId: organizationId!,
+          client
+        })
+        setSigner(turnkeySigner)
 
-        // perform a getWhoAmI to get the sub organization ID for the corresponding public key
-        const getWhoAmIResponse = await client.getWhoami({
-          organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
-        });
-
-        if(getWhoAmIResponse) {
-          setOrganizationId(getWhoAmIResponse.organizationId)
-
-          // need to create a new client, to update the organization Id used for requests, now that it has been obtained from the getWhoAmI request
-          client = new TurnkeyBrowserClient({
-            stamper: telegramStamper,
-            organizationId: getWhoAmIResponse.organizationId,
-            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-          });
-
-          turnkeySigner = new TurnkeySigner({
-            organizationId: getWhoAmIResponse.organizationId!,
-            client
-          })
-          setSigner(turnkeySigner)
-          setUpdateBalance(!updateBalance)
-        }
-
-      } catch (e) {
-      }
-
-      // if the signer is undefined then create a new sub organization for the user
-      if (!turnkeySigner) {
-        try {
-          // create the api key pair to be stored for the user
-          const keyPair = generateP256KeyPair();
-          
-          const telegramStamper = await TelegramCloudStorageStamper.create({
-            apiPublicKey: keyPair.publicKey,
-            apiPrivateKey: keyPair.privateKey
-          });
-
-          const createSubOrgResponse = await axios.post("/api/auth", { 
-            type: 'telegram',
-            publicKey: keyPair.publicKey,
-          });
-
-          if(!createSubOrgResponse.data.organizationId) {
-            setDisplaySolAddress("Failed Retrieving Demo Address")
-            return;
-          }
-
-          setOrganizationId(createSubOrgResponse.data.organizationId)
-
-          const client = new TurnkeyBrowserClient({
-            stamper: telegramStamper,
-            organizationId: createSubOrgResponse.data.organizationId,
-            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-          });
-
-          const turnkeySigner = new TurnkeySigner({
-            organizationId: organizationId!,
-            client
-          })
-          setSigner(turnkeySigner)
-          setUpdateBalance(!updateBalance)
-        } catch (e) {
-          setDisplaySolAddress("Failed Retrieving Demo Address")
-          return;
-        }
-      }
-    }
-
-    loadCredentials();
-  }, [])
-
-  useEffect(() => {
-    async function init() {
-      // wait until organization id is set from the previous useEffect hook
-      if(!organizationId) {
-        return 
-      }
-
-      try {
         const getAddressResponse = await axios.get("/api/getAddress", { 
           params: {
             organizationId: organizationId
@@ -270,11 +192,11 @@ export default function Wallet() {
     const beginningAddress = address.slice(0, halfLength);
     const endAddress = address.slice(address.length - halfLength);
 
-    return `${beginningAddress}•••${endAddress}`;
+    return `${beginningAddress}...${endAddress}`;
   }
 
   function copyAddress() {
-    const prevAddress = truncateAddress(solAddress, 16);
+    const prevAddress = displaySolAddress;
     navigator.clipboard.writeText(solAddress);
 
     setDisplaySolAddress("Address copied!");
@@ -313,15 +235,11 @@ export default function Wallet() {
           <CardTitle className="text-center">${(solPrice * solBalance).toFixed(2)} USD</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-        <div className="flex items-center justify-center rounded-lg">
-          <p className="text-center break-all cursor-pointer hover:text-gray-400 font-semibold" onClick={copyAddress}>{displaySolAddress}&nbsp;</p>
-          {displaySolAddress != "..." && displaySolAddress != "Failed Retrieving Demo Address" && <button onClick={copyAddress} disabled={disableInputs}>
-            <LucideCopy className="h-3 w-3" />
-          </button>}
-        </div>
+          <p className="text-center break-all cursor-pointer hover:text-gray-400 font-semibold" onClick={copyAddress}>{displaySolAddress}</p>
           <p className="text-center ">{solBalance} SOL (Devnet)</p>
         </CardContent>
       </Card>
+
       <Card className="mb-2">
         <CardHeader>
           <CardTitle className="text-lg text-center">Fund Wallet</CardTitle>
@@ -387,11 +305,11 @@ export default function Wallet() {
           </div>
         </CardContent>
       </Card>
-      {/* <button onClick={handleLogout} disabled={disableInputs} className="w-full">
+      <button onClick={handleLogout} disabled={disableInputs} className="w-full">
         <Card className="bg-foreground mb-4">
             <CardTitle className="text-lg text-center text-background py-2">Logout</CardTitle>
         </Card>
-      </button> */}
+      </button>
     </div>
   );
 }

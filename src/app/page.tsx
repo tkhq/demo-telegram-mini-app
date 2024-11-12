@@ -1,9 +1,10 @@
 'use client'
 
-import Wallet from "./wallet/page";
+import Auth from "./auth/page";
+import DisplayTelegramMessage from "./display-telegram/page";
 
 export default function Home() {
   return (
-    <Wallet />
+      <Auth/> 
   )
 }

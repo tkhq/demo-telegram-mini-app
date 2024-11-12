@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { ApiKeyStamper, DEFAULT_SOLANA_ACCOUNTS, TurnkeyServerClient } from "@turnkey/sdk-server";
-import { APIKeyParams, Email, OauthProviderParams } from "@/types/types";
+import { Email, OauthProviderParams } from "@/types/types";
 import { decodeJwt, MILLIS_90_MINUTES, DEMO_WALLET_NAME } from '@/util/util';
 
 const PARENT_ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID
@@ -25,21 +25,21 @@ export async function POST(req: Request) {
   let organizationId;
 
   try {
-    let { type, email, oidcToken, provider, targetPublicKey, publicKey } = await req.json();
+    let { type, email, oidcToken, provider, targetPublicKey } = await req.json();
     // check for valid type parameter
     if (!type) {
       return NextResponse.json({ error: "Didnt receive type parameter"}, { status: 400});
+    }
+
+    // check for valid targetPublicKey parameter
+    if (!targetPublicKey) {
+      return NextResponse.json({ error: "Didnt receive valid target public key parameter"}, { status: 400});
     }
 
     if (type === 'email') {
       // check for valid email parameter
       if (!email || !isEmail(email)) {
         return NextResponse.json({ error: "Didnt receive valid email parameter"}, { status: 400});
-      }
-
-      // check for valid targetPublicKey parameter
-      if (!targetPublicKey) {
-        return NextResponse.json({ error: "Didnt receive valid target public key parameter"}, { status: 400});
       }
 
       // check if email exists already
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       // if email doesnt exist create new sub org and perform email auth
       if (findUserResponse.organizationIds.length == 0) {
         // create new sub org
-        const { subOrg, user } = await createSubOrg({email})
+        const { subOrg, user } = await createSubOrg(email)
         // if sub org creation was successful perform email auth
         if (subOrg && user) {
           // perform email auth
@@ -111,11 +111,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Didnt receive valid oauth provider parameter"}, { status: 400});
       }
 
-      // check for valid targetPublicKey parameter
-      if (!targetPublicKey) {
-        return NextResponse.json({ error: "Didnt receive valid target public key parameter"}, { status: 400});
-      }
-
       // check if oidcToken exists already
       const findUserResponse = await client.getSubOrgIds({
         organizationId: PARENT_ORG_ID,
@@ -136,7 +131,7 @@ export async function POST(req: Request) {
       // if oidcToken doesnt exist within any sub orgs create new sub org and perform oauth
       if (findUserResponse.organizationIds.length == 0) {
         // create new sub org
-        const { subOrg, user } = await createSubOrg({email, oauth: oauthProviders})
+        const { subOrg, user } = await createSubOrg(email, oauthProviders)
         // if sub org creation was successful perform oauth
         if (subOrg && user) {
           // perform oauth
@@ -184,25 +179,6 @@ export async function POST(req: Request) {
         // found multiple users? can't determine to know who to sign in - shouldnt get here
         return NextResponse.json({ error: "Error logging user in"}, { status: 500});
       }
-    } else if (type === 'telegram') {
-      // check for valid publicKey parameter
-      if (!publicKey) {
-        return NextResponse.json({ error: "Didnt receive valid public key parameter"}, { status: 400});
-      }
-
-      // create new sub org
-      const { subOrg, user } = await createSubOrg({
-        publicKey: publicKey
-      })
-      // if sub org creation was successful perform email auth
-      if (subOrg && user) {
-        // set the organization id for the response
-        organizationId = subOrg.subOrganizationId
-
-        // return the organization id and credential bundle
-        return NextResponse.json({ organizationId: organizationId }, { status: 200 })
-      }
-      return NextResponse.json({ error: "Failed creating user"}, { status: 500});
     } else {
       return NextResponse.json({ error: "Didnt receive valid type parameter"}, { status: 400});
     }
@@ -217,26 +193,20 @@ function isEmail(email: string): email is Email {
   return emailRegex.test(email);
 }
 
-async function createSubOrg({ email, oauth, publicKey }: { email?: Email, oauth?: OauthProviderParams, publicKey?: string }) {
+async function createSubOrg(email?: Email, oauth?: OauthProviderParams) {
   let oauthProviders: OauthProviderParams[] = [];
+
   let userEmail = email;
-  let apiKeys: APIKeyParams[] = [];
 
   if (oauth) {
     oauthProviders.push(oauth)
   }
 
-  if (publicKey) {
-    const apiKey: APIKeyParams =  {
-      apiKeyName: "Demo Coin API Key",
-      publicKey: publicKey,
-      curveType: "API_KEY_CURVE_P256"
-    }
-
-    apiKeys.push(apiKey)
+  if(!userEmail) {
+    throw new Error("No email for user provided")
   }
 
-  const subOrganizationName = `Turnkey Demo Sub Org${ userEmail ? ` - ${userEmail}` : "" }`
+  const subOrganizationName = `Turnkey Demo Sub Org - ${userEmail}`
   const userName = userEmail ? userEmail.split("@")?.[0] || userEmail : "Turnkey User"
 
   const subOrg = await client.createSubOrganization({
@@ -248,7 +218,7 @@ async function createSubOrg({ email, oauth, publicKey }: { email?: Email, oauth?
         userEmail,
         oauthProviders,
         authenticators: [],
-        apiKeys,
+        apiKeys: [],
       },
     ],
     rootQuorumThreshold: 1,
