@@ -35,7 +35,7 @@ module.exports = async (request, response) => {
                     {
                     text: "Turnkey Demo App",
                     web_app: {
-                        url: process.env.PUBLIC_SITE_URL
+                        url: process.env.PUBLIC_SITE_URL_AUTH
                     },
                     }
                 ]
