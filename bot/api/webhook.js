@@ -37,6 +37,7 @@ module.exports = async (request, response) => {
                     web_app: {
                         url: process.env.PUBLIC_SITE_URL_AUTH
                     },
+                    url: process.env.PUBLIC_SITE_URL_AUTH
                     }
                 ]
                 ]
