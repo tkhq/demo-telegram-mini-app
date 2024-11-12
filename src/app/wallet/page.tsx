@@ -30,7 +30,6 @@ export default function Wallet() {
   const [solAddress, setSolAddress] = useState("");
   const [solPrice, setSolPrice] = useState(160.00);
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
-  const [demoCoinBalance, setDemoCoinBalance] = useState(0);
   const [signer, setSigner] = useState<TurnkeySigner | null>(null);
   const [sendErrorText, setSendErrorText] = useState("");
   const [sendSuccessLink, setSendSuccessLink] = useState("");
