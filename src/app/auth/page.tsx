@@ -10,6 +10,7 @@ import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { useState } from "react";
+import Image from "next/image";
 
 type EmailAuthData = {
   email: Email
@@ -51,45 +52,47 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-background">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Turnkey</CardTitle>
-          <p className="text-center text-sm text-muted-foreground">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md items-center justify-center">
+        <CardHeader className="justify-center items-center gap-1 self-stretch pt-8 pb-[21px] px-6">
+          <Image
+            src="/turnkey.svg"
+            alt="Turnkey Logo"
+            height={127.622}
+            width={127.622}
+            className="justify-center items-center flex"
+          />
+          <p className="text-center text-sm">
             Log in or Sign up
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <form className="space-y-2">
-              {errorText &&
-                <p className="text-red-600 text-center">{errorText}</p>
-              }
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                {...emailFormRegister('email')}
-              />
-              <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
-                Continue with email
-              </button>
-            </form>
+        <CardContent className="flex flex-col justify-center items-center gap-1.5 self-stretch pt-0 pb-8 px-6">
+          <form className="space-y-2 w-full">
+            {errorText &&
+              <p className="text-red-600 text-center flex justify-center items-center w-full text-sm">{errorText}</p>
+            }
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              {...emailFormRegister('email')}
+              className="border-[color:var(--Greyscale-200,#D8DBE3)] shadow-[0px_1px_2px_0px_rgba(14,13,82,0.05)] px-4 py-3.5 border-solid text-foreground"
+            />
+            <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="flex justify-center items-center gap-2 self-stretch border border-[color:var(--Greyscale-800,#3F464B)] px-4 py-2.5 rounded-lg border-solid bg-foreground text-background text-sm w-full">
+              Continue with email
+            </button>
+          </form>
+          <div className="flex items-center gap-2 py-4 w-full">
+            <span className="flex-grow border-t h-px"></span>
+            <div className="px-2 text-xs uppercase text-[color:var(--Greyscale-500,#868C95)] font-medium">
+              Or
+            </div>
+            <span className="flex-grow border-t h-px"></span>
           </div>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
-            <div>
-              <GoogleAuth />
-            </div>
+          <div>
+            <GoogleAuth />
+          </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }

@@ -28,7 +28,7 @@ export default function GoogleAuth() {
     <GoogleOAuthProvider clientId={clientId}>
       <GoogleLogin
         nonce={nonce}
-        width={235}
+        width={342}
         containerProps={{ className: "w-full bg-white flex justify-center rounded-md" }}
         onSuccess={onSuccess}
         useOneTap={false}
