@@ -49,8 +49,10 @@ export default function EmailAuth() {
   
       // This stores the api credentials obtained from email auth into telegram cloud storage and those credentials can be used in other places in your application
       await TelegramCloudStorageStamper.create({
-        apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
-        apiPrivateKey: decryptedData!,
+        cloudStorageAPIKey: {
+          apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData!),
+          apiPrivateKey: decryptedData!,
+        },
       });
       
       router.push(`/wallet?${searchParams}`);
@@ -67,8 +69,8 @@ export default function EmailAuth() {
   }
 
   return (
-    <div className="min-h-screen bg-foreground flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-background">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md items-center justify-center">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-bold text-center">Turnkey</CardTitle>
           <p className="text-center text-sm text-muted-foreground">
@@ -86,7 +88,7 @@ export default function EmailAuth() {
                 placeholder="Enter verification code"
                 {...emailAuthCodeFormRegister('authCode')}
               />
-              <button onClick={emailAuthCodeFormSubmit(handleEmailAuth)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">
+              <button onClick={emailAuthCodeFormSubmit(handleEmailAuth)} disabled={continueButtonDisabled} className="w-full px-4 h-10 bg-foreground text-white border-solid border-input border rounded-md hover:bg-gray-800">
                 Continue
               </button>
             </form>
@@ -101,11 +103,11 @@ export default function EmailAuth() {
               </span>
             </div>
           </div>
-          <button onClick={handleReturnToLogin} disabled={returnLoginButtonDisabled} className="w-full px-4 h-10 bg-background text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
+          <button onClick={handleReturnToLogin} disabled={returnLoginButtonDisabled} className="w-full px-4 h-10 bg-white text-foreground border-solid border-input border rounded-md hover:bg-gray-100">
             Return to login
           </button>
         </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }

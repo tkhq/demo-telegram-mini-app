@@ -56,8 +56,10 @@ export default function GoogleAuth() {
 		
 					// This stores the api credentials obtained from oauth into telegram cloud storage and those credentials can be used in other places in your application
 					await TelegramCloudStorageStamper.create({
-						apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData),
-						apiPrivateKey: decryptedData,
+						cloudStorageAPIKey: {
+							apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData),
+							apiPrivateKey: decryptedData,
+						}
 					});
 		
 					const queryParams = new URLSearchParams({

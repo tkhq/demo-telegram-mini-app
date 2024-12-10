@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: var(--Greyscale-1, #FFF);
   --foreground: var(--Greyscale-900, #2b2f33);
+  --background: var(--grays-ui-25, #f1f3f6);
 }
 
 body {
