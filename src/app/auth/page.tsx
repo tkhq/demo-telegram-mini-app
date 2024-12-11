@@ -81,16 +81,21 @@ export default function Auth() {
               Continue with email
             </button>
           </form>
-          <div className="flex items-center gap-2 py-4 w-full">
-            <span className="flex-grow border-t h-px"></span>
-            <div className="px-2 text-xs uppercase text-[color:var(--Greyscale-500,#868C95)] font-medium">
-              Or
-            </div>
-            <span className="flex-grow border-t h-px"></span>
-          </div>
-          <div>
-            <GoogleAuth />
-          </div>
+          {
+            window?.Telegram?.WebApp?.platform === "desktop" &&
+            <>
+              <div className="flex items-center gap-2 py-4 w-full">
+                <span className="flex-grow border-t h-px"></span>
+                <div className="px-2 text-xs uppercase text-[color:var(--Greyscale-500,#868C95)] font-medium">
+                  Or
+                </div>
+                <span className="flex-grow border-t h-px"></span>
+              </div>
+              <div>
+                <GoogleAuth />
+              </div>
+            </>
+          }
         </CardContent>
       </div>
     </div>
