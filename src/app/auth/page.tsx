@@ -82,7 +82,7 @@ export default function Auth() {
             </button>
           </form>
           {
-            window?.Telegram?.WebApp?.platform === "desktop" &&
+            window?.Telegram?.WebApp?.platform === "tdesktop" &&
             <>
               <div className="flex items-center gap-2 py-4 w-full">
                 <span className="flex-grow border-t h-px"></span>
