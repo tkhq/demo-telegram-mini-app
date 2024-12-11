@@ -9,7 +9,7 @@ import { connect, balance } from "@/web3/web3"
 import { Copy } from "lucide-react";
 import Image from "next/image";
 import Popup from "@/components/popup";
-import TelegramCloudStorageStamper, { DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "@turnkey/telegram-cloud-storage-stamper";
+import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import { generateP256KeyPair } from "@turnkey/crypto";
 
@@ -148,7 +148,7 @@ export default function Wallet() {
     try {
       const telegramStamper = new TelegramCloudStorageStamper();
 
-      const airdrops = await telegramStamper.getItem(DEFAULT_TURNKEY_CLOUD_STORAGE_KEY);
+      const airdrops = await telegramStamper.getItem(TURNKEY_AIRDROPS_NUM_KEY);
       let numAirdrops = parseInt(airdrops);
       if (isNaN(numAirdrops)) {
         numAirdrops = 0;
