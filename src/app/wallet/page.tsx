@@ -9,7 +9,7 @@ import { connect, balance } from "@/web3/web3"
 import { Copy } from "lucide-react";
 import Image from "next/image";
 import Popup from "@/components/popup";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import TelegramCloudStorageStamper, { DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "@turnkey/telegram-cloud-storage-stamper";
 
 export default function Wallet() {
   const router = useRouter();
@@ -27,6 +27,8 @@ export default function Wallet() {
   const [popupType, setPopupType] = useState<"info" | "success" | "error">("info");
   const [popupTitle, setPopupTitle] = useState("");
   const [popupMessage, setPopupMessage] = useState("");
+
+  const TURNKEY_AIRDROPS_NUM_KEY = "TURNKEY_DEMO_AIRDROPS_AMOUNT";
 
   useEffect(() => {
     async function init() {
@@ -79,7 +81,7 @@ export default function Wallet() {
     try {
       const telegramStamper = new TelegramCloudStorageStamper();
 
-      const airdrops = await telegramStamper.getItem("TURNKEY_DEMO_AIRDROPS_AMOUNT");
+      const airdrops = await telegramStamper.getItem(TURNKEY_AIRDROPS_NUM_KEY);
       let numAirdrops = parseInt(airdrops);
       if (isNaN(numAirdrops)) {
         numAirdrops = 0;
@@ -100,7 +102,7 @@ export default function Wallet() {
         }
       });
 
-      telegramStamper.setItem("TURNKEY_DEMO_AIRDROPS_AMOUNT", (numAirdrops + 1).toString())
+      telegramStamper.setItem(TURNKEY_AIRDROPS_NUM_KEY, (numAirdrops + 1).toString())
 
       setSuccessPopup("Funds added", "Received 0.01 testnet SOL");
       setDisableInputs(false);
@@ -175,7 +177,7 @@ export default function Wallet() {
     
     // clear the API Key from Telegram Cloud storage
     const telegramStamper = new TelegramCloudStorageStamper();
-    telegramStamper.clearItem("TURNKEY_API_KEY");
+    telegramStamper.clearItem(DEFAULT_TURNKEY_CLOUD_STORAGE_KEY);
 
     router.push("/auth");
   }
