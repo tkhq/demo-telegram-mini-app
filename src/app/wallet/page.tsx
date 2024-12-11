@@ -1,52 +1,39 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
-import Input from "@/components/input";
+import { Card, CardContent, CardHeader } from "@/components/card";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { TurnkeyBrowserClient } from "@turnkey/sdk-browser"
-import { TurnkeySigner } from "@turnkey/solana";
+import { useRouter } from 'next/navigation';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import axios from "axios";
-import { connect, balance, transfer, broadcast } from "@/web3/web3"
-import { useForm } from "react-hook-form";
-import TelegramCloudStorageStamper, { TTelegramCloudStorageStamperConfig } from "@turnkey/telegram-cloud-storage-stamper";
-import Link from "next/link";
-import { LucideCopy } from "lucide-react";
+import { connect, balance } from "@/web3/web3"
+import { Copy } from "lucide-react";
+import Image from "next/image";
+import Popup from "@/components/popup";
+import TelegramCloudStorageStamper, { DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "@turnkey/telegram-cloud-storage-stamper";
+import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import { generateP256KeyPair } from "@turnkey/crypto";
-
-type SendSolData = {
-  amount: number;
-  recipient: string;
-}
 
 export default function Wallet() {
   const router = useRouter();
-  // const searchParams = useSearchParams();
-  // const organizationId = searchParams.get('organizationId');
   const [organizationId, setOrganizationId] = useState("");
   const solConnection = connect();
+  const failedRetrievingAddressText = "Failed Retrieving Address";
   const [solBalance, setSolBalance] = useState(0);
   const [solAddress, setSolAddress] = useState("");
-  const [solPrice, setSolPrice] = useState(160.00);
+  const [solPrice, setSolPrice] = useState(200.00);
   const [displaySolAddress, setDisplaySolAddress] = useState("...");
-  const [signer, setSigner] = useState<TurnkeySigner | null>(null);
-  const [sendErrorText, setSendErrorText] = useState("");
-  const [sendSuccessLink, setSendSuccessLink] = useState("");
-  const [sendSuccessText, setSendSuccessText] = useState("");
-  const [redeemErrorText, setRedeemErrorText] = useState("");
-  const [redeemSuccessLink, setRedeemSuccessLink] = useState("");
-  const [redeemSuccessText, setRedeemSuccessText] = useState("");
   const [disableInputs, setDisableInputs] = useState(false);
   const [updateBalance, setUpdateBalance] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupType, setPopupType] = useState<"info" | "success" | "error">("info");
+  const [popupTitle, setPopupTitle] = useState("");
+  const [popupMessage, setPopupMessage] = useState("");
 
-
-  const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
-    useForm<SendSolData>();
+  const TURNKEY_AIRDROPS_NUM_KEY = "TURNKEY_DEMO_AIRDROPS_AMOUNT";
 
   useEffect(() => {
     async function loadCredentials() {
-      let turnkeySigner;
+      let orgId;
       try {
         // Check if there are credentials stored in Telegram Cloud Storage
         const telegramStamper = await TelegramCloudStorageStamper.create();
@@ -55,67 +42,45 @@ export default function Wallet() {
           organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
           apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
         });
-
+    
         // perform a getWhoAmI to get the sub organization ID for the corresponding public key
         const getWhoAmIResponse = await client.getWhoami({
           organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
         });
-
+    
         if(getWhoAmIResponse) {
+          orgId = getWhoAmIResponse.organizationId;
           setOrganizationId(getWhoAmIResponse.organizationId)
-
-          // need to create a new client, to update the organization Id used for requests, now that it has been obtained from the getWhoAmI request
-          client = new TurnkeyBrowserClient({
-            stamper: telegramStamper,
-            organizationId: getWhoAmIResponse.organizationId,
-            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-          });
-
-          turnkeySigner = new TurnkeySigner({
-            organizationId: getWhoAmIResponse.organizationId!,
-            client
-          })
-          setSigner(turnkeySigner)
           setUpdateBalance(!updateBalance)
         }
-
+    
       } catch (e) {
       }
-
+    
       // if the signer is undefined then create a new sub organization for the user
-      if (!turnkeySigner) {
+      if (!orgId) {
         try {
           // create the api key pair to be stored for the user
           const keyPair = generateP256KeyPair();
           
           const telegramStamper = await TelegramCloudStorageStamper.create({
-            apiPublicKey: keyPair.publicKey,
-            apiPrivateKey: keyPair.privateKey
+            cloudStorageAPIKey: {
+              apiPublicKey: keyPair.publicKey,
+              apiPrivateKey: keyPair.privateKey
+            }
           });
-
+    
           const createSubOrgResponse = await axios.post("/api/auth", { 
             type: 'telegram',
             publicKey: keyPair.publicKey,
           });
-
+    
           if(!createSubOrgResponse.data.organizationId) {
             setDisplaySolAddress("Failed Retrieving Demo Address")
             return;
           }
-
+    
           setOrganizationId(createSubOrgResponse.data.organizationId)
-
-          const client = new TurnkeyBrowserClient({
-            stamper: telegramStamper,
-            organizationId: createSubOrgResponse.data.organizationId,
-            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-          });
-
-          const turnkeySigner = new TurnkeySigner({
-            organizationId: organizationId!,
-            client
-          })
-          setSigner(turnkeySigner)
           setUpdateBalance(!updateBalance)
         } catch (e) {
           setDisplaySolAddress("Failed Retrieving Demo Address")
@@ -123,9 +88,9 @@ export default function Wallet() {
         }
       }
     }
-
+    
     loadCredentials();
-  }, [])
+    }, [])
 
   useEffect(() => {
     async function init() {
@@ -142,7 +107,7 @@ export default function Wallet() {
         });
 
         if(!getAddressResponse.data.address) {
-          setDisplaySolAddress("Failed Retrieving Demo Address")
+          setDisplaySolAddress(failedRetrievingAddressText)
           return;
         }
 
@@ -152,7 +117,7 @@ export default function Wallet() {
         const solBal = await balance(solConnection, getAddressResponse.data.address);
         setSolBalance(solBal / LAMPORTS_PER_SOL);
       } catch (e) {
-        setDisplaySolAddress("Failed Retrieving Demo Address");
+        setDisplaySolAddress(failedRetrievingAddressText);
       }
 
       try {
@@ -166,76 +131,35 @@ export default function Wallet() {
     }
 
     init();
-  }, [updateBalance])
+  }, [updateBalance]);
 
-  function handleBack() {
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => {
+        setShowPopup(false)
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [showPopup]);
+
+  async function onAirdrop() {
     setDisableInputs(true);
-    const queryParams = new URLSearchParams({
-      organizationId: organizationId!,
-    }).toString();
-    router.push(`/play?${queryParams}`);
-  }
-
-  async function handleSend(data: SendSolData) {
-    setDisableInputs(true);
-    setSendErrorText("");
-    setSendSuccessLink("");
-    setSendSuccessText("Sending...");
-    if (!data.amount || !data.recipient) {
-      setSendErrorText("Please enter both an amount and recipient");
-      setSendSuccessLink("");
-      setSendSuccessText("");
-      setDisableInputs(false);
-      return;
-    }
-
-    const amount = data.amount * LAMPORTS_PER_SOL;
-
-    if (amount >= solBalance * LAMPORTS_PER_SOL) {
-      setSendErrorText("Insufficient balance");
-      setSendSuccessLink("");
-      setSendSuccessText("");
-      setDisableInputs(false);
-      return;
-    }
-
-    let transaction;
+    setInfoPopup("Adding funds...", "Please wait");
     try {
-      transaction = await transfer(solConnection, amount, solAddress, data.recipient);
-    } catch (e) {
-      setSendErrorText("Invalid amount or recipient");
-      setSendSuccessLink("");
-      setSendSuccessText("");
-      setDisableInputs(false);
-      return
-    }
+      const telegramStamper = new TelegramCloudStorageStamper();
 
-    try {
+      const airdrops = await telegramStamper.getItem(DEFAULT_TURNKEY_CLOUD_STORAGE_KEY);
+      let numAirdrops = parseInt(airdrops);
+      if (isNaN(numAirdrops)) {
+        numAirdrops = 0;
+      }
 
-      await signer!.addSignature(transaction, solAddress);
-      // broadcast
-      const transactionHash = await broadcast(solConnection, transaction);
-      setSendErrorText("");
-      setSendSuccessLink(`https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`);
-      setSendSuccessText("Success! Funds sent");
-      setUpdateBalance(!updateBalance);
-      setDisableInputs(false);
-      return;
-    } catch (e) {
-      setSendErrorText("Error connecting to network or adding signature");
-      setSendSuccessLink("");
-      setSendSuccessText("");
-      setDisableInputs(false);
-      return;
-    }
-  }
+      if (numAirdrops >= 5) {
+        setErrorPopup("Cannot add funds", "Reached limit of 5 requested funds");
+        setDisableInputs(false);
+        return;
+      }
 
-  async function handleRedeem() {
-    setDisableInputs(true);
-    setRedeemSuccessText("Adding funds...");
-    setRedeemErrorText("");
-    setRedeemSuccessLink("");
-    try {
       const queryParams = new URLSearchParams({
         organizationId: organizationId!,
       }).toString();
@@ -245,16 +169,14 @@ export default function Wallet() {
         }
       });
 
-      setRedeemErrorText("");
-      setRedeemSuccessLink(`https://explorer.solana.com/tx/${getAddressResponse.data.transaction}?cluster=devnet`);
-      setRedeemSuccessText("Success! Funds Added");
+      telegramStamper.setItem(TURNKEY_AIRDROPS_NUM_KEY, (numAirdrops + 1).toString())
+
+      setSuccessPopup("Funds added", "Received 0.01 testnet SOL");
       setDisableInputs(false);
       setUpdateBalance(!updateBalance);
       return;
     } catch (e) {
-      setRedeemErrorText("Failed adding funds");
-      setRedeemSuccessLink("");
-      setRedeemSuccessText("");
+      setErrorPopup("Funds not added", "Please try again");
       setDisableInputs(false);
       return;
     }
@@ -269,11 +191,11 @@ export default function Wallet() {
     const beginningAddress = address.slice(0, halfLength);
     const endAddress = address.slice(address.length - halfLength);
 
-    return `${beginningAddress}•••${endAddress}`;
+    return `${beginningAddress}...${endAddress}`;
   }
 
   function copyAddress() {
-    const prevAddress = truncateAddress(solAddress, 16);
+    const prevAddress = displaySolAddress;
     navigator.clipboard.writeText(solAddress);
 
     setDisplaySolAddress("Address copied!");
@@ -283,114 +205,147 @@ export default function Wallet() {
     }, 1000);
   }
 
-  function copyExplorerLink(event: any) {
-    let explorerLink = `https://explorer.solana.com/address/${solAddress}?cluster=devnet`;
-    navigator.clipboard.writeText(explorerLink);
-
-    const target = event.target as HTMLSpanElement;
-
-    const prevText = target.innerText;
-
-    target.innerText = "Explorer link copied to clipboard!";
-    setTimeout(() => {
-      target.innerText = prevText; // Reverts to original text after 1 second
-    }, 1000);
+  function setErrorPopup(title: string, message: string) {
+    setShowPopup(false)
+    setShowPopup(true)
+    setPopupMessage(message);
+    setPopupTitle(title);
+    setPopupType("error");
   }
 
-  function handleLogout() {
+  function setInfoPopup(title: string, message: string) {
+    setShowPopup(false)
+    setShowPopup(true)
+    setPopupMessage(message);
+    setPopupTitle(title);
+    setPopupType("info");
+  }
+
+  function setSuccessPopup(title: string, message: string) {
+    setShowPopup(false)
+    setShowPopup(true)
+    setPopupMessage(message);
+    setPopupTitle(title);
+    setPopupType("success");
+  }
+
+  function onSend() {
     setDisableInputs(true);
-    router.push("/auth");
+    const queryParams = new URLSearchParams({
+      organizationId: organizationId!,
+    }).toString();
+    router.push(`/send?${queryParams}`);
+  }
+
+  function onReceive() {
+    setDisableInputs(true);
+    const queryParams = new URLSearchParams({
+      organizationId: organizationId!,
+    }).toString();
+    router.push(`/receive?${queryParams}`);
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold flex-grow text-center">Demo Wallet</h1>
-      </div>
-      <Card className="mb-2">
-        <CardHeader>
-          <CardTitle className="text-center">${(solPrice * solBalance).toFixed(2)} USD</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-        <div className="flex items-center justify-center rounded-lg">
-          <p className="text-center break-all cursor-pointer hover:text-gray-400 font-semibold" onClick={copyAddress}>{displaySolAddress}&nbsp;</p>
-          {displaySolAddress != "..." && displaySolAddress != "Failed Retrieving Demo Address" && <button onClick={copyAddress} disabled={disableInputs}>
-            <LucideCopy className="h-3 w-3" />
-          </button>}
-        </div>
-          <p className="text-center ">{solBalance} SOL (Devnet)</p>
-        </CardContent>
-      </Card>
-      <Card className="mb-2">
-        <CardHeader>
-          <CardTitle className="text-lg text-center">Fund Wallet</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="relative h-screen bg-background">
+      <div className="p-4 min-h-0 flex-grow">
+        <div className="space-y-8">
           <div className="flex items-center justify-center">
-            {/* <p className="text-xl font-semibold">Balance: {demoCoinBalance}</p> */}
-            <button onClick={handleRedeem} disabled={disableInputs} className="font-semibold mb-2 px-4 h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Add funds</button>
-          </div>
-          {redeemErrorText &&
-            <p className="text-red-600 text-center">{redeemErrorText}</p>
-          }
-          {redeemSuccessText &&
-            <div className="text-center">
-              {redeemSuccessLink ? 
-                <Link href={redeemSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
-                    setRedeemSuccessLink("")
-                    setRedeemSuccessText("")
-                  }}>{redeemSuccessText}
-                </Link>
-              : 
-                <p className="text-center">{redeemSuccessText}</p>
-              }
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Secured by</span>
+              <Image
+                src="/turnkey.svg"
+                alt="Turnkey Logo"
+                height={12}
+                width={60}
+              />
             </div>
-          }
-        </CardContent>
-      </Card>
-      <Card className="mb-2">
-        <CardHeader>
-          <CardTitle className="text-lg text-center">Send</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-2">
-            {sendErrorText &&
-              <p className="text-red-600 text-center">{sendErrorText}</p>
-            }
-            {sendSuccessText &&
-              <div className="text-center">
-                {sendSuccessLink ? 
-                  <Link href={sendSuccessLink} target="_blank" className="text-center hover:underline" onClick={() => {
-                      setSendSuccessLink("")
-                      setSendSuccessText("")
-                    }}>{sendSuccessText}
-                  </Link>
-                : 
-                  <p className="text-center">{sendSuccessText}</p>
-                }
+          </div>
+        </div>
+      </div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-6">
+        <Card className="shadow-[0px_2px_6px_0px_rgba(0,0,0,0.08)] rounded-lg bg-white">
+          <CardHeader>
+            <div className="space-y-1">
+              <h1 className="text-2xl font-semibold">Wallet</h1>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="text-sm font-mono">{displaySolAddress}</span>
+                <button 
+                  className="h-8 w-8" 
+                  onClick={copyAddress}
+                  disabled={disableInputs}
+                >
+                  {displaySolAddress == failedRetrievingAddressText ? "" : <Copy className="h-4 w-4" />}
+                </button>
               </div>
-            }
-          </div>
-          <div className="flex flex-col space-y-2">
-            <Input
-              type="text"
-              placeholder="Recipient Address"
-              {...sendSolFormRegister('recipient')}
-            />
-            <Input
-              type="text"
-              placeholder="Amount"
-              {...sendSolFormRegister('amount')}
-            />
-            <button onClick={sendSolFormSubmit(handleSend)} disabled={disableInputs} className="font-semibold h-10 bg-foreground text-background border-solid border-input border rounded-md hover:bg-gray-800">Send</button>
-          </div>
-        </CardContent>
-      </Card>
-      {/* <button onClick={handleLogout} disabled={disableInputs} className="w-full">
-        <Card className="bg-foreground mb-4">
-            <CardTitle className="text-lg text-center text-background py-2">Logout</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6">
+            <div className="space-y-1">
+              <div className="text-5xl font-bold tracking-tighter">
+                ${(solBalance * solPrice).toFixed(2)}
+              </div>
+              <p className="text-lg text-muted-foreground">
+                {solBalance} SOL (Testnet)
+              </p>
+            </div>
+          </CardContent>
         </Card>
-      </button> */}
+
+        <div className="space-y-2">
+          <div className="pt-10">
+          <button 
+            className="flex w-full justify-center items-center gap-2 border border-[color:var(--Greyscale-800,#3F464B)] px-4 py-2.5 rounded-lg border-solid bg-foreground text-white"
+            onClick={onAirdrop}
+            disabled={disableInputs}
+          >
+            <Image
+              src="/airdrop.svg"
+              alt="Airdrop Sol"
+              height={16}
+              width={16}
+            />
+            Add Funds
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <button 
+            className="flex w-full justify-center items-center gap-2 border border-[color:var(--Greyscale-400,#A2A7AE)] px-4 py-2.5 rounded-lg border-solid bg-white"
+            onClick={onSend}
+            disabled={disableInputs}
+          >
+            <Image
+              src="/up-black.svg"
+              alt="Send Logo"
+              height={16}
+              width={16}
+            />
+            Send
+          </button>
+          <button 
+            className="flex w-full justify-center items-center gap-2 border border-[color:var(--Greyscale-400,#A2A7AE)] px-4 py-2.5 rounded-lg border-solid bg-white"
+            onClick={onReceive}
+            disabled={disableInputs}
+          >
+            <Image
+              src="/down-black.svg"
+              alt="Receive Logo"
+              height={16}
+              width={16}
+            />
+            Receive
+          </button>
+        </div>
+        </div>
+      </div>
+      {showPopup && (
+        <Popup
+          type={popupType}
+          title={popupTitle}
+          message={popupMessage}
+          className="w-full"
+        />
+      )}
     </div>
   );
 }
