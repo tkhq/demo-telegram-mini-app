@@ -27,13 +27,13 @@ module.exports = async (request, response) => {
 
             // Create a message to send back
             // We can use Markdown inside this
-            const message = `Turnkey Demo App built on Turnkey 🚀`;
+            const message = `Non-custodial demo wallet, secured by Turnkey 🔑`;
             // Create the inline keyboard
             const keyboard = {
                 inline_keyboard: [
                 [
                     {
-                    text: "Turnkey Demo App",
+                    text: "Launch app",
                     web_app: {
                         url: process.env.PUBLIC_SITE_URL
                     },
