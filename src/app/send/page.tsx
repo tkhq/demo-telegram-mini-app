@@ -13,7 +13,7 @@ import Popup from "@/components/popup";
 import { useForm } from "react-hook-form";
 
 type SendSolData = {
-  amount: number;
+  amount: number | undefined;
   recipient: string;
 }
 
@@ -33,7 +33,7 @@ export default function Send() {
   const [popupTitle, setPopupTitle] = useState("");
   const [popupMessage, setPopupMessage] = useState("");
 
-  const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit } =
+  const { register: sendSolFormRegister, handleSubmit: sendSolFormSubmit, setValue } =
     useForm<SendSolData>();
 
   useEffect(() => {
@@ -80,6 +80,10 @@ export default function Send() {
       return () => clearTimeout(timer)
     }
   }, [showPopup])
+
+  useEffect(() => {
+    setValue('recipient', "NSsbwsQ4K6rvsAMZJeLoh1LUxBWUaG2NhQ2RimVuFRa");
+  }, [])
 
   function handleBack() {
     const queryParams = new URLSearchParams({
@@ -150,6 +154,7 @@ export default function Send() {
       const transactionHash = await broadcast(solConnection, transaction);
       setSuccessPopup("Successfully Sent", `${data.amount} SOL has been sent`);
       setUpdateBalance(!updateBalance);
+      clearForm();
       setDisableInputs(false);
       return;
     } catch (e) {
@@ -159,29 +164,31 @@ export default function Send() {
     }
   }
 
+  function clearForm() {
+    setValue("amount", undefined);
+    setValue("recipient", "");
+  }
+
   return (
     <div className="relative h-screen">
-      <div className="bg-background p-4 min-h-0 flex-grow">
-        <div className="space-y-8">
-          <div className="flex items-center justify-between">
-            <button className="rounded-full" onClick={handleBack} disabled={disableInputs}>
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <button className="rounded-full" onClick={handleBack} disabled={disableInputs}>
             <Image
-                src="/back.svg"
-                alt="Back button"
-                height={60}
-                width={60}
-              />
-            </button>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Secured by</span>
-              <Image
-                src="/turnkey.svg"
-                alt="Turnkey Logo"
-                height={12}
-                width={60}
-              />
-            </div>
-            <div className="w-10" />
+              src="/back.svg"
+              alt="Back button"
+              height={60}
+              width={60}
+            />
+          </button>
+          <div className="absolute inset-x-0 top-4 flex items-center justify-center gap-2">
+            <span className="text-sm">Secured by</span>
+            <Image
+              src="/turnkey.svg"
+              alt="Turnkey Logo"
+              height={12}
+              width={60}
+            />
           </div>
         </div>
       </div>

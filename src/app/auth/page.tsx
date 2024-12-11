@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/card"
+import { CardContent, CardHeader } from "@/components/card"
 import  Input from "@/components/input"
 import GoogleAuth from "@/components/google-auth";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -75,9 +75,9 @@ export default function Auth() {
               type="email"
               placeholder="Enter your email"
               {...emailFormRegister('email')}
-              className="border-[color:var(--Greyscale-200,#D8DBE3)] shadow-[0px_1px_2px_0px_rgba(14,13,82,0.05)] px-4 py-3.5 border-solid text-foreground"
+              className="border-[color:var(--Greyscale-200,#D8DBE3)] shadow-[0px_1px_2px_0px_rgba(14,13,82,0.05)] px-4 py-3.5 border-solid text-foreground w-full rounded"
             />
-            <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="flex justify-center items-center gap-2 self-stretch border border-[color:var(--Greyscale-800,#3F464B)] px-4 py-2.5 rounded-lg border-solid bg-foreground text-white text-sm w-full">
+            <button onClick={emailFormSubmit(handleEmailLogin)} disabled={continueButtonDisabled} className="flex justify-center items-center gap-2 self-stretch border border-[color:var(--Greyscale-800,#3F464B)] px-4 py-2.5 rounded border-solid bg-foreground text-white text-sm w-full">
               Continue with email
             </button>
           </form>

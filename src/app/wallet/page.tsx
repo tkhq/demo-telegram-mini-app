@@ -9,6 +9,7 @@ import { connect, balance } from "@/web3/web3"
 import { Copy } from "lucide-react";
 import Image from "next/image";
 import Popup from "@/components/popup";
+import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
 
 export default function Wallet() {
   const router = useRouter();
@@ -74,8 +75,22 @@ export default function Wallet() {
 
   async function onAirdrop() {
     setDisableInputs(true);
-    setInfoPopup("Initiating airdrop", "Please wait");
+    setInfoPopup("Adding funds...", "Please wait");
     try {
+      const telegramStamper = new TelegramCloudStorageStamper();
+
+      const airdrops = await telegramStamper.getItem("TURNKEY_DEMO_AIRDROPS_AMOUNT");
+      let numAirdrops = parseInt(airdrops);
+      if (isNaN(numAirdrops)) {
+        numAirdrops = 0;
+      }
+
+      if (numAirdrops >= 5) {
+        setErrorPopup("Cannot add funds", "Reached limit of 5 requested funds");
+        setDisableInputs(false);
+        return;
+      }
+
       const queryParams = new URLSearchParams({
         organizationId: organizationId!,
       }).toString();
@@ -85,12 +100,14 @@ export default function Wallet() {
         }
       });
 
-      setSuccessPopup("Airdrop successful", "Received testnet SOL");
+      telegramStamper.setItem("TURNKEY_DEMO_AIRDROPS_AMOUNT", (numAirdrops + 1).toString())
+
+      setSuccessPopup("Funds added", "Received 0.01 testnet SOL");
       setDisableInputs(false);
       setUpdateBalance(!updateBalance);
       return;
     } catch (e) {
-      setErrorPopup("Airdrop unsuccessful", "Please try again");
+      setErrorPopup("Funds not added", "Please try again");
       setDisableInputs(false);
       return;
     }
@@ -155,6 +172,11 @@ export default function Wallet() {
 
   function onLogout() {
     setDisableInputs(true);
+    
+    // clear the API Key from Telegram Cloud storage
+    const telegramStamper = new TelegramCloudStorageStamper();
+    telegramStamper.clearItem("TURNKEY_API_KEY");
+
     router.push("/auth");
   }
 
@@ -217,7 +239,7 @@ export default function Wallet() {
               height={16}
               width={16}
             />
-            Airdrop SOL
+            Add Funds
           </button>
         </div>
 

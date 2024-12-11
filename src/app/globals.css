@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
   --foreground: var(--Greyscale-900, #2b2f33);
   --background: var(--grays-ui-25, #f1f3f6);
@@ -10,7 +12,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: 'Inter', sans-serif;
 }
 
 @layer utilities {

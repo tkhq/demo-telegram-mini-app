@@ -73,27 +73,24 @@ export default function Receive() {
 
   return (
     <div className="relative h-screen">
-      <div className="bg-background p-4 min-h-0 flex-grow">
-        <div className="space-y-8">
-          <div className="flex items-center justify-between">
-            <button className="rounded-full" onClick={handleBack}>
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <button className="rounded-full" onClick={handleBack}>
             <Image
-                src="/back.svg"
-                alt="Turnkey Logo"
-                height={60}
-                width={60}
-              />
-            </button>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Secured by</span>
-              <Image
-                src="/turnkey.svg"
-                alt="Turnkey Logo"
-                height={12}
-                width={60}
-              />
-            </div>
-            <div className="w-10" />
+              src="/back.svg"
+              alt="Back button"
+              height={60}
+              width={60}
+            />
+          </button>
+          <div className="absolute inset-x-0 top-4 flex items-center justify-center gap-2">
+            <span className="text-sm">Secured by</span>
+            <Image
+              src="/turnkey.svg"
+              alt="Turnkey Logo"
+              height={12}
+              width={60}
+            />
           </div>
         </div>
       </div>
@@ -107,12 +104,12 @@ export default function Receive() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Card className="flex items-center justify-between space-x-4 p-3 rounded border border-[color:var(--Greyscale-200,#D8DBE3)] shadow-[0px_1px_2px_0px_rgba(14,13,82,0.05)] border-solid bg-background">
-              <p className="text-xs whitespace-nowrap">{displaySolAddress}</p>
+              <p className="text-xs whitespace-nowrap font-mono">{displaySolAddress}</p>
               <button onClick={copyAddress} className="h-8 w-8">
                 <Copy className="h-4 w-4" />
               </button>
             </Card>
-            <Card className="bg-white text-center text-[8px] text-muted-foreground rounded p-2">
+            <Card className="bg-white text-center text-xs text-muted-foreground rounded p-2">
               <p>This address can only receive testnet Solana.</p>
               <p>Sending any other asset to this will result in loss of funds.</p>
             </Card>
