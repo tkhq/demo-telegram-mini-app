@@ -79,8 +79,8 @@ export default function GoogleAuth() {
 	})
 
 	return (
-		<>
-			Loading...
-		</>
+		<div className="flex items-center justify-center min-h-screen">
+			Logging in with Google...
+		</div>
 	)
 }
