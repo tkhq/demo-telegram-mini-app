@@ -9,7 +9,7 @@ import { Email } from '@/types/types';
 import axios from "axios";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import { MILLIS_15_MINUTES, setLocalStorageItemWithExipry, TURNKEY_EMBEDDED_KEY } from "@/util/util";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 type EmailAuthData = {
@@ -20,10 +20,29 @@ export default function Auth() {
   const router = useRouter();
   const searchParms = useSearchParams();
   const [errorText, setErrorText] = useState(searchParms.get('error') || "");
-  const [continueButtonDisabled, setContinueButtonDisabled] = useState(false)
+  const [continueButtonDisabled, setContinueButtonDisabled] = useState(false);
+  const [tgContext, setTGContext] = useState("");
   const { register: emailFormRegister, handleSubmit: emailFormSubmit } =
     useForm<EmailAuthData>();
 
+
+  useEffect(() => {
+    const script = document.querySelector<HTMLScriptElement>('script[src="https://telegram.org/js/telegram-web-app.js"]');
+    console.log("OkKkK")
+    console.log(script)
+    if (script) {
+      script.onload = () => {
+        console.log("Test")
+        console.log(window.Telegram.WebApp.platform)
+        setTGContext(window.Telegram.WebApp.platform)
+      };
+    }
+
+    if(window?.Telegram?.WebApp?.platform) {
+      setTGContext(window?.Telegram?.WebApp?.platform)
+    }
+  }, [])
+  
   async function handleEmailLogin (data: EmailAuthData) {
     setContinueButtonDisabled(true);
     const keyPair = generateP256KeyPair();
@@ -82,7 +101,7 @@ export default function Auth() {
             </button>
           </form>
           {
-            window?.Telegram?.WebApp?.platform === "tdesktop" &&
+            tgContext === "tdesktop" &&
             <>
               <div className="flex items-center gap-2 py-4 w-full">
                 <span className="flex-grow border-t h-px"></span>
