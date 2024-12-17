@@ -251,7 +251,7 @@ export default function Wallet() {
         <div className="space-y-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-2">
-              <span className="text-sm">Secured by</span>
+              <span className="text-sm">Powered by</span>
               <Image
                 src="/turnkey.svg"
                 alt="Turnkey Logo"
