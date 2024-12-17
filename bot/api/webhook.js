@@ -27,7 +27,7 @@ module.exports = async (request, response) => {
 
             // Create a message to send back
             // We can use Markdown inside this
-            const message = `Non-custodial demo wallet, secured by Turnkey 🔑`;
+            const message = `Non-custodial demo wallet, powered by Turnkey 🔑`;
             // Create the inline keyboard
             const keyboard = {
                 inline_keyboard: [

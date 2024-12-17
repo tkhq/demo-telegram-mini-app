@@ -182,7 +182,7 @@ export default function Send() {
             />
           </button>
           <div className="absolute inset-x-0 top-4 flex items-center justify-center gap-2">
-            <span className="text-sm">Secured by</span>
+            <span className="text-sm">Powered by</span>
             <Image
               src="/turnkey.svg"
               alt="Turnkey Logo"
