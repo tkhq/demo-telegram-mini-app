@@ -203,7 +203,7 @@ export default function Send() {
             <form>
               <div className="space-x-2">
                 <input {...sendSolFormRegister('amount')} className="text-5xl not-italic font-normal leading-[110%] tracking-[-2.3px] border-0 p-0 bg-transparent inline w-[50%] focus:outline-none focus:ring-0" type="text" placeholder="0.00" maxLength={5}/> SOL
-                <span className="text-[color:var(--Greyscale-700,#555B64)]">(Testnet)</span>
+                <span className="text-[color:var(--Greyscale-700,#555B64)]">(Devnet)</span>
               </div>
               <p className="text-[color:var(--Greyscale-700,#555B64)] pb-5">BAL {solBalance || "0.00"} SOL</p>
               <input placeholder="Recipient address" disabled={disableInputs} {...sendSolFormRegister('recipient')} className="flex w-full items-center rounded border border-[color:var(--Greyscale-200,#D8DBE3)] shadow-[0px_1px_2px_0px_rgba(14,13,82,0.05)] px-4 py-2.5 border-solid bg-background text-sm"/>

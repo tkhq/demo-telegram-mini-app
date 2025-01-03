@@ -99,7 +99,7 @@ export default function Receive() {
           <CardHeader>
             <div className="space-y-1">
               <h1 className="text-2xl font-semibold">Receive</h1>
-              <p className="text-sm text-muted-foreground">On Solana Testnet</p>
+              <p className="text-sm text-muted-foreground">On Solana Devnet</p>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -110,7 +110,7 @@ export default function Receive() {
               </button>
             </Card>
             <Card className="bg-white text-center text-xs text-muted-foreground rounded p-2">
-              <p>This address can only receive testnet Solana.</p>
+              <p>This address can only receive devnet Solana.</p>
               <p>Sending any other asset to this will result in loss of funds.</p>
             </Card>
           </CardContent>
