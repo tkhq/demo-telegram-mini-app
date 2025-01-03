@@ -171,7 +171,7 @@ export default function Wallet() {
 
       telegramStamper.setItem(TURNKEY_AIRDROPS_NUM_KEY, (numAirdrops + 1).toString())
 
-      setSuccessPopup("Funds added", "Received 0.01 testnet SOL");
+      setSuccessPopup("Funds added", "Received 0.01 devnet SOL");
       setDisableInputs(false);
       setUpdateBalance(!updateBalance);
       return;
@@ -285,7 +285,7 @@ export default function Wallet() {
                 ${(solBalance * solPrice).toFixed(2)}
               </div>
               <p className="text-lg text-muted-foreground">
-                {solBalance} SOL (Testnet)
+                {solBalance} SOL (Devnet)
               </p>
             </div>
           </CardContent>
