@@ -2,7 +2,7 @@
 
 import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, GOOGLE_OAUTH_DECRYPT_KEY, GOOGLE_OAUTH_PUBLIC_KEY } from "@/util/util";
 import { decryptCredentialBundle } from "@turnkey/crypto";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";

@@ -9,7 +9,10 @@ import { connect, balance } from "@/web3/web3"
 import { Copy } from "lucide-react";
 import Image from "next/image";
 import Popup from "@/components/popup";
-import TelegramCloudStorageStamper, { DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "@turnkey/telegram-cloud-storage-stamper";
+import {
+  TelegramCloudStorageStamper,
+  DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
+} from "@turnkey/telegram-cloud-storage-stamper";
 
 export default function Wallet() {
   const router = useRouter();
