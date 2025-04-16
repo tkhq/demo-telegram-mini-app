@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation"
 import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, TURNKEY_EMBEDDED_KEY } from "@/util/util";
 import { decryptCredentialBundle } from "@turnkey/crypto";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
 import { useState } from "react";
 
 type EmailAuthCodeData = {

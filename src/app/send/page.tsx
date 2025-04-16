@@ -4,7 +4,7 @@ import { balance, broadcast, connect, transfer } from "@/web3/web3";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import { TurnkeySigner } from "@turnkey/solana";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
 import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';

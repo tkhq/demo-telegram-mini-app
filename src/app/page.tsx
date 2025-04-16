@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Auth from "./auth/page";
-import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
 import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import { useRouter } from "next/navigation";
 
