@@ -3,10 +3,10 @@ import { Copy } from 'lucide-react'
 import { Card, CardContent, CardHeader } from "@/components/card"
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import axios from 'axios';
 
-export default function Receive() {
+function ReceiveContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organizationId');
@@ -118,4 +118,12 @@ export default function Receive() {
       </div>
     </div>
   )
+}
+
+export default function Receive() {
+  return (
+    <Suspense>
+      <ReceiveContent />
+    </Suspense>
+  );
 }

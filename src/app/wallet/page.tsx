@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader } from "@/components/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import axios from "axios";
@@ -14,7 +14,7 @@ import {
   DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
 } from "@turnkey/telegram-cloud-storage-stamper";
 
-export default function Wallet() {
+function WalletContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organizationId');
@@ -295,5 +295,13 @@ export default function Wallet() {
         />
       )}
     </div>
+  );
+}
+
+export default function Wallet() {
+  return (
+    <Suspense>
+      <WalletContent />
+    </Suspense>
   );
 }

@@ -1,86 +1,76 @@
 'use client'
 
-import { getLocalStorageItemWithExipry, getPublicKeyFromPrivateKeyHex, GOOGLE_OAUTH_DECRYPT_KEY, GOOGLE_OAUTH_PUBLIC_KEY } from "@/util/util";
-import { decryptCredentialBundle } from "@turnkey/crypto";
-import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
+import { TelegramCloudStorageStamper, DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "@turnkey/telegram-cloud-storage-stamper";
+import { TURNKEY_OAUTH_TEMP_KEY } from "@/components/google-auth";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import RootLayout from "../layout";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, Suspense } from "react";
+
+function GoogleAuthContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const oidcToken = searchParams.get('oidcToken');
+
+  useEffect(() => {
+    if (!oidcToken) {
+      router.push('/auth?error=Failed+google+oauth');
+      return;
+    }
+
+    async function performGoogleAuth() {
+      try {
+        // Read the key pair written to Cloud Storage before the OAuth redirect
+        const stamper = new TelegramCloudStorageStamper();
+        const tempKey = await stamper.getAPIKey(TURNKEY_OAUTH_TEMP_KEY);
+
+        if (!tempKey) {
+          router.push('/auth?error=Failed+google+oauth');
+          return;
+        }
+
+        const { apiPublicKey: publicKey, apiPrivateKey: privateKey } = tempKey;
+
+        // Sub-org lookup/create + oauthLogin
+        const loginRes = await axios.post("/api/oauth-login", {
+          oidcToken,
+          publicKey,
+        });
+
+        if (loginRes.status !== 200) {
+          router.push('/auth?error=Failed+google+oauth');
+          return;
+        }
+
+        const { organizationId } = loginRes.data;
+
+        // Promote temp key to the default Cloud Storage slot used by the rest of the app
+        await TelegramCloudStorageStamper.create({
+          cloudStorageAPIKey: { apiPublicKey: publicKey, apiPrivateKey: privateKey },
+        });
+
+        // Clean up the temp key
+        await stamper.clearItem(TURNKEY_OAUTH_TEMP_KEY);
+
+        router.push(`/wallet?organizationId=${organizationId}`);
+      } catch {
+        router.push('/auth?error=Failed+google+oauth');
+      }
+    }
+
+    performGoogleAuth();
+  }, [oidcToken, router]);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      Logging in with Google…
+    </div>
+  );
+}
 
 export default function GoogleAuth() {
-	const router = useRouter();
-	const searchParams = useSearchParams();
-
-	const oidcToken = searchParams.get('oidcToken');
-
-	if (!oidcToken) {
-		const queryParams = new URLSearchParams({
-			error: "Failed google oauth",
-		}).toString();
-		router.push(`/auth?${queryParams}`);
-	}
-
-	useEffect(() => {
-		const oauthDecryptKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_DECRYPT_KEY);
-		const oauthPublicKey = getLocalStorageItemWithExipry(GOOGLE_OAUTH_PUBLIC_KEY);
-
-		//ensure we are in a telegram context by including the telegram web app script
-		// const script = document.createElement('script');
-		// script.src = "https://telegram.org/js/telegram-web-app.js";
-		// document.head.appendChild(script);
-		
-		async function performGoogleAuth() {
-			try {
-				const response = await axios.post("/api/auth", {
-					type: "oauth",
-					oidcToken: oidcToken,
-					provider: "Google Auth - Embedded Wallet",
-					targetPublicKey: oauthPublicKey,
-				});
-			
-				if (response.status == 200) {
-					// decrypt respone bundle and create a telegram stamper to put creds in cloud storage
-					const decryptedData = decryptCredentialBundle(
-						response.data.credentialBundle,
-						oauthDecryptKey
-					);
-			
-					if (!decryptedData) {
-						const queryParams = new URLSearchParams({
-							error: "Failed google oauth",
-						}).toString();
-						router.push(`/auth?${queryParams}`);
-					}
-		
-					// This stores the api credentials obtained from oauth into telegram cloud storage and those credentials can be used in other places in your application
-					await TelegramCloudStorageStamper.create({
-						cloudStorageAPIKey: {
-							apiPublicKey: getPublicKeyFromPrivateKeyHex(decryptedData),
-							apiPrivateKey: decryptedData,
-						}
-					});
-		
-					const queryParams = new URLSearchParams({
-							organizationId: response.data.organizationId,
-					}).toString();
-					router.push(`/wallet?${queryParams}`);
-				}
-			} catch (e) {
-				const queryParams = new URLSearchParams({
-					error: "Failed google oauth",
-				}).toString();
-				router.push(`/auth?${queryParams}`);
-			}
-		}
-
-		performGoogleAuth();
-	})
-
-	return (
-		<div className="flex items-center justify-center min-h-screen">
-			Logging in with Google...
-		</div>
-	)
+  return (
+    <Suspense>
+      <GoogleAuthContent />
+    </Suspense>
+  );
 }
