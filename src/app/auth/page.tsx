@@ -5,6 +5,7 @@ import Input from "@/components/input"
 import GoogleAuth from "@/components/google-auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { Suspense } from "react";
 import { Email } from '@/types/types';
 import axios from "axios";
 import { generateP256KeyPair, encryptOtpCodeToBundle, fromDerSignature } from "@turnkey/crypto";
@@ -19,7 +20,7 @@ import Image from "next/image";
 type EmailFormData = { email: Email }
 type OtpFormData = { otpCode: string }
 
-export default function Auth() {
+function AuthContent() {
   const router = useRouter();
   const searchParms = useSearchParams();
   const [errorText, setErrorText] = useState(searchParms.get('error') || "");
@@ -213,5 +214,13 @@ export default function Auth() {
         </CardContent>
       </div>
     </div>
+  );
+}
+
+export default function Auth() {
+  return (
+    <Suspense>
+      <AuthContent />
+    </Suspense>
   );
 }
