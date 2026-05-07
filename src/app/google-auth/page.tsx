@@ -4,9 +4,9 @@ import { TelegramCloudStorageStamper, DEFAULT_TURNKEY_CLOUD_STORAGE_KEY } from "
 import { TURNKEY_OAUTH_TEMP_KEY } from "@/components/google-auth";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
-export default function GoogleAuth() {
+function GoogleAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oidcToken = searchParams.get('oidcToken');
@@ -64,5 +64,13 @@ export default function GoogleAuth() {
     <div className="flex items-center justify-center min-h-screen">
       Logging in with Google…
     </div>
+  );
+}
+
+export default function GoogleAuth() {
+  return (
+    <Suspense>
+      <GoogleAuthContent />
+    </Suspense>
   );
 }
