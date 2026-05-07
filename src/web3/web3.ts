@@ -38,10 +38,8 @@ export async function transfer(connection: Connection, amount: number, sender: s
 }
 
 export async function broadcast(connection: Connection, signedTransaction: Transaction) {
-  const confirmationStrategy = await getConfirmationStrategy(bs58.encode(signedTransaction.signature!));
-  const transactionHash = await sendAndConfirmRawTransaction(connection, Buffer.from(signedTransaction.serialize()), confirmationStrategy, { commitment: "confirmed" });
-
-  return transactionHash;
+  const confirmationStrategy = await getConfirmationStrategy(bs58.encode(new Uint8Array(signedTransaction.signature!)));
+  return await sendAndConfirmRawTransaction(connection, signedTransaction.serialize(), confirmationStrategy, { commitment: "confirmed" });
 }
 
 async function getConfirmationStrategy(

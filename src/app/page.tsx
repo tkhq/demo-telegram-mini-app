@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Auth from "./auth/page";
 import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
-import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import { TurnkeyClient } from "@turnkey/http";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -14,13 +14,12 @@ export default function Home() {
       try {
         // Check if there are credentials stored in Telegram Cloud Storage
         const telegramStamper = await TelegramCloudStorageStamper.create();
-        let client = new TurnkeyBrowserClient({
-          stamper: telegramStamper,
-          organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-          apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-        });
+        const client = new TurnkeyClient(
+          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+          telegramStamper,
+        );
 
-        // perform a getWhoAmI to get the sub organization ID for the corresponding public key
+        // perform a getWhoami to get the sub organization ID for the corresponding public key
         const getWhoAmIResponse = await client.getWhoami({
           organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
         });

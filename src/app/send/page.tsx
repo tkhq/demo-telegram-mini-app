@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader } from "@/components/card"
 import { balance, broadcast, connect, transfer } from "@/web3/web3";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import { TurnkeyClient } from "@turnkey/http";
 import { TurnkeySigner } from "@turnkey/solana";
 import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
 import axios from "axios";
@@ -41,11 +41,10 @@ export default function Send() {
       try {
         // This uses credentials previously stored in Telegram Cloud Storage
         const telegramStamper = await TelegramCloudStorageStamper.create();
-        const client = new TurnkeyBrowserClient({
-          stamper: telegramStamper,
-          organizationId: organizationId!,
-          apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!
-        });
+        const client = new TurnkeyClient(
+          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+          telegramStamper,
+        );
         const turnkeySigner = new TurnkeySigner({
           organizationId: organizationId!,
           client
